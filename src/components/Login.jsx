@@ -5,11 +5,11 @@ import { useNavigate } from 'react-router-dom'
 
 export default function Login() {
     const navigate = useNavigate()
-    const [user, setUser] = useState('')
+    const [user, setUser]         = useState('')
     const [password, setPassword] = useState('')
     const [showPass, setShowPass] = useState(false)
-    const [loading, setLoading] = useState(false)
-    const [toast, setToast] = useState(null) // { message, type: 'success' | 'error' }
+    const [loading, setLoading]   = useState(false)
+    const [toast, setToast]       = useState(null)
 
     function showToast(message, type) {
         setToast({ message, type })
@@ -22,159 +22,68 @@ export default function Login() {
             setLoading(true)
             localStorage.setItem('token', 'fake-token-12345')
             showToast("✅ Muvaffaqiyatli o'tdingiz!", 'success')
-            setTimeout(() => {
-                navigate('/dashboard')
-            }, 2000)
+            setTimeout(() => navigate('/dashboard'), 2000)
         } else {
             showToast('⚠️ Login yoki parol kiritilmagan!', 'error')
         }
     }
 
     return (
-        <div style={{ display: 'flex', width: '100vw', height: '100vh', fontFamily: "'Roboto', sans-serif" }}>
+        <div className="flex w-screen h-screen">
 
-            {/* Toast Notification */}
+            {/* Toast */}
             {toast && (
-                <div style={{
-                    position: 'fixed',
-                    top: '24px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    background: toast.type === 'success' ? '#1F2D5C' : '#c0392b',
-                    color: '#fff',
-                    padding: '14px 28px',
-                    borderRadius: '10px',
-                    fontSize: '15px',
-                    fontWeight: 600,
-                    boxShadow: '0 6px 24px rgba(0,0,0,0.25)',
-                    zIndex: 9999,
-                    animation: 'slideDown 0.35s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    whiteSpace: 'nowrap'
-                }}>
+                <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2.5 px-7 py-3.5 rounded-[10px] text-[15px] font-semibold text-white whitespace-nowrap shadow-[0_6px_24px_rgba(0,0,0,0.25)] animate-slideDown ${toast.type === 'success' ? 'bg-[#1F2D5C]' : 'bg-[#c0392b]'}`}>
                     {toast.message}
                     {toast.type === 'success' && (
-                        <span style={{ fontSize: '13px', opacity: 0.8 }}> — 2 soniyada yo'naltirilmoqda...</span>
+                        <span className="text-[13px] opacity-80"> — 2 soniyada yo'naltirilmoqda...</span>
                     )}
                 </div>
             )}
 
-            <style>{`
-                @keyframes slideDown {
-                    from { opacity: 0; transform: translateX(-50%) translateY(-16px); }
-                    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-                }
-            `}</style>
-
             {/* LEFT — illustration */}
-            <div style={{
-                width: '55%',
-                background: '#1F2D5C',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                overflow: 'hidden'
-            }}>
-                <img
-                    src={Study}
-                    alt="study illustration"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
+            <div className="w-[55%] bg-[#1F2D5C] flex items-center justify-center overflow-hidden">
+                <img src={Study} alt="study illustration" className="w-full h-full object-cover" />
             </div>
 
             {/* RIGHT — form */}
-            <div style={{
-                width: '45%',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '18px',
-                background: '#fff',
-                position: 'relative'
-            }}>
-                <p style={{
-                    width: '240px',
-                    textAlign: 'center',
-                    fontSize: '12px',
-                    fontWeight: 500,
-                    color: '#333',
-                    lineHeight: '1.5'
-                }}>
+            <div className="w-[45%] flex flex-col items-center justify-center gap-[18px] bg-white relative">
+                <p className="w-60 text-center text-xs font-medium text-[#333] leading-relaxed">
                     MUHAMMAD AL-XORAZMIY NOMIDAGI TOSHKENT AXBOROT TEXNOLOGIYALARI UNIVERSITETI
                 </p>
 
-                <img src={Logo} alt="logo" style={{ width: '80px', height: '80px' }} />
+                <img src={Logo} alt="logo" className="w-20 h-20" />
 
-                <h2 style={{
-                    fontSize: '16px',
-                    fontWeight: 700,
-                    letterSpacing: '1px',
-                    color: '#111',
-                    margin: 0
-                }}>
+                <h2 className="text-base font-bold tracking-[1px] text-[#111] m-0">
                     LEARNING MANAGEMENT SYSTEM
                 </h2>
 
-                <form onSubmit={Auth} style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '300px' }}>
+                <form onSubmit={Auth} className="flex flex-col gap-3.5 w-[300px]">
 
-                    {/* Login field */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <label style={{ fontSize: '13px', color: '#444' }}>Login</label>
+                    <div className="flex flex-col gap-1">
+                        <label className="text-[13px] text-[#444]">Login</label>
                         <input
                             value={user}
-                            onChange={(e) => setUser(e.target.value)}
+                            onChange={e => setUser(e.target.value)}
                             type="text"
                             placeholder="Loginni kiriting"
-                            style={{
-                                padding: '10px 12px',
-                                border: '1px solid #aaa',
-                                borderRadius: '6px',
-                                fontSize: '14px',
-                                outline: 'none',
-                                transition: 'border 0.2s',
-                            }}
-                            onFocus={e => e.target.style.borderColor = '#1F2D5C'}
-                            onBlur={e => e.target.style.borderColor = '#aaa'}
+                            className="px-3 py-2.5 border border-[#aaa] rounded-md text-sm outline-none transition-colors duration-200 focus:border-[#1F2D5C]"
                         />
                     </div>
 
-                    {/* Parol field */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <label style={{ fontSize: '13px', color: '#444' }}>Parol</label>
-                        <div style={{ position: 'relative' }}>
+                    <div className="flex flex-col gap-1">
+                        <label className="text-[13px] text-[#444]">Parol</label>
+                        <div className="relative">
                             <input
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={e => setPassword(e.target.value)}
                                 type={showPass ? 'text' : 'password'}
                                 placeholder="Parolni kiriting"
-                                style={{
-                                    padding: '10px 40px 10px 12px',
-                                    border: '1px solid #aaa',
-                                    borderRadius: '6px',
-                                    fontSize: '14px',
-                                    width: '100%',
-                                    boxSizing: 'border-box',
-                                    outline: 'none',
-                                    transition: 'border 0.2s',
-                                }}
-                                onFocus={e => e.target.style.borderColor = '#1F2D5C'}
-                                onBlur={e => e.target.style.borderColor = '#aaa'}
+                                className="w-full py-2.5 pl-3 pr-10 border border-[#aaa] rounded-md text-sm outline-none transition-colors duration-200 focus:border-[#1F2D5C]"
                             />
                             <span
                                 onClick={() => setShowPass(!showPass)}
-                                style={{
-                                    position: 'absolute',
-                                    right: '12px',
-                                    top: '50%',
-                                    transform: 'translateY(-50%)',
-                                    cursor: 'pointer',
-                                    color: '#888',
-                                    fontSize: '18px',
-                                    userSelect: 'none'
-                                }}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-[#888] text-lg select-none"
                             >
                                 {showPass ? '🙈' : '👁️'}
                             </span>
@@ -184,32 +93,13 @@ export default function Login() {
                     <button
                         type="submit"
                         disabled={loading}
-                        style={{
-                            padding: '12px',
-                            background: loading ? '#6b81c7' : '#1F2D5C',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: '6px',
-                            fontSize: '15px',
-                            fontWeight: 600,
-                            cursor: loading ? 'not-allowed' : 'pointer',
-                            transition: 'background 0.2s',
-                            letterSpacing: '0.5px'
-                        }}
-                        onMouseEnter={e => { if (!loading) e.target.style.background = '#162040' }}
-                        onMouseLeave={e => { if (!loading) e.target.style.background = '#1F2D5C' }}
+                        className={`py-3 border-none rounded-md text-[15px] font-semibold text-white tracking-[0.5px] transition-colors duration-200 ${loading ? 'bg-[#6b81c7] cursor-not-allowed' : 'bg-[#1F2D5C] hover:bg-[#162040] cursor-pointer'}`}
                     >
                         {loading ? 'Yuklanmoqda...' : 'Kirish'}
                     </button>
                 </form>
 
-                {/* Footer */}
-                <p style={{
-                    position: 'absolute',
-                    bottom: '16px',
-                    fontSize: '12px',
-                    color: '#888'
-                }}>
+                <p className="absolute bottom-4 text-xs text-[#888]">
                     Copyright © 2021 of Tashkent University of Information Technologies
                 </p>
             </div>
