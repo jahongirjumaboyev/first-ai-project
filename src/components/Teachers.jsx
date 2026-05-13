@@ -80,10 +80,10 @@ export default function Teachers() {
     return (
         <div>
             {/* Page header */}
-            <div className="flex justify-between items-start mb-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start mb-5">
                 <div>
                     <h1 className="m-0 text-2xl font-bold text-[#1a1a2e] dark:text-[#e2e8f0]">O'qituvchilar</h1>
-                    <p className="mt-1.5 mb-0 text-[#6b7280] dark:text-[#94a3b8] text-[13px] leading-relaxed max-w-[580px]">
+                    <p className="mt-1.5 mb-0 text-[#6b7280] dark:text-[#94a3b8] text-[13px] leading-relaxed max-w-full sm:max-w-145">
                         Ushbu sahifada siz o'qituvchilar ro'yxatini va ularning ma'lumotlarini topasiz.
                         Har bir o'qituvchining ismi, fanlari va aloqa ma'lumotlari keltirilgan.
                     </p>
@@ -105,21 +105,21 @@ export default function Teachers() {
             <div className="bg-white dark:bg-[#1e2a3a] rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_16px_rgba(0,0,0,0.3)]">
 
                 {/* Filter bar */}
-                <div className="flex justify-between items-center px-5 py-3.5 border-b border-[#e8e8e8] dark:border-[#2d3748]">
-                    <button className="flex items-center gap-1.5 bg-transparent border border-[#e8e8e8] dark:border-[#2d3748] text-[#6b7280] dark:text-[#94a3b8] rounded-lg px-3.5 py-[7px] text-[13px] cursor-pointer hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors duration-200">
+                <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center px-5 py-3.5 border-b border-[#e8e8e8] dark:border-[#2d3748]">
+                    <button className="flex items-center gap-1.5 bg-transparent border border-[#e8e8e8] dark:border-[#2d3748] text-[#6b7280] dark:text-[#94a3b8] rounded-lg px-3.5 py-[7px] text-[13px] cursor-pointer hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors duration-200 w-fit">
                         <FilterListIcon sx={{ fontSize: 18 }} /> Filters
                     </button>
-                    <div className="flex gap-2.5 items-center">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                         <div className="flex items-center gap-2 bg-[#f5f5f5] dark:bg-[#0f1827] border border-[#e8e8e8] dark:border-[#2d3748] rounded-lg px-3 py-[7px]">
                             <SearchIcon sx={{ color: '#94a3b8', fontSize: 18 }} />
                             <input
                                 value={search}
                                 onChange={e => handleSearch(e.target.value)}
                                 placeholder="Ism yoki telefon..."
-                                className="border-none outline-none bg-transparent text-[13px] text-[#1a1a2e] dark:text-[#e2e8f0] w-45"
+                                className="border-none outline-none bg-transparent text-[13px] text-[#1a1a2e] dark:text-[#e2e8f0] w-full sm:w-45"
                             />
                         </div>
-                        <button className="flex items-center gap-1.5 bg-transparent border border-[#e8e8e8] dark:border-[#2d3748] text-[#6b7280] dark:text-[#94a3b8] rounded-lg px-3.5 py-[7px] text-[13px] cursor-pointer hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors duration-200">
+                        <button className="flex items-center gap-1.5 bg-transparent border border-[#e8e8e8] dark:border-[#2d3748] text-[#6b7280] dark:text-[#94a3b8] rounded-lg px-3.5 py-[7px] text-[13px] cursor-pointer hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors duration-200 w-fit">
                             Arxiv <ArchiveIcon sx={{ fontSize: 18 }} />
                         </button>
                     </div>
@@ -240,7 +240,7 @@ export default function Teachers() {
             />
 
             {/* Drawer */}
-            <div className={`fixed top-0 right-0 bottom-0 w-[420px] bg-white dark:bg-[#1e2a3a] z-[201] flex flex-col shadow-[-6px_0_32px_rgba(0,0,0,0.18)] transition-transform duration-[350ms] ease-in-out ${drawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+            <div className={`fixed top-0 right-0 bottom-0 w-full sm:w-105 bg-white dark:bg-[#1e2a3a] z-201 flex flex-col shadow-[-6px_0_32px_rgba(0,0,0,0.18)] transition-transform duration-350 ease-in-out ${drawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
 
                 {/* Header */}
                 <div className="px-6 pt-[22px] pb-4 border-b border-[#e8e8e8] dark:border-[#2d3748] shrink-0">

@@ -29,7 +29,7 @@ export default function Login() {
     }
 
     return (
-        <div className="flex w-screen h-screen">
+        <div className="flex flex-col md:flex-row w-screen h-screen">
 
             {/* Toast */}
             {toast && (
@@ -42,12 +42,12 @@ export default function Login() {
             )}
 
             {/* LEFT — illustration */}
-            <div className="w-[55%] bg-[#1F2D5C] flex items-center justify-center overflow-hidden">
+            <div className="hidden md:flex md:w-[55%] bg-[#1F2D5C] items-center justify-center overflow-hidden">
                 <img src={Study} alt="study illustration" className="w-full h-full object-cover" />
             </div>
 
             {/* RIGHT — form */}
-            <div className="w-[45%] flex flex-col items-center justify-center gap-[18px] bg-white relative">
+            <div className="flex-1 md:w-[45%] flex flex-col items-center justify-center gap-4.5 bg-white relative px-4 md:px-0">
                 <p className="w-60 text-center text-xs font-medium text-[#333] leading-relaxed">
                     MUHAMMAD AL-XORAZMIY NOMIDAGI TOSHKENT AXBOROT TEXNOLOGIYALARI UNIVERSITETI
                 </p>

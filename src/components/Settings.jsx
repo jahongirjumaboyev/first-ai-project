@@ -81,8 +81,8 @@ function KursDrawer({ open, onClose }) {
 
     return (
         <>
-            <div onClick={onClose} className={`fixed inset-0 bg-black/45 z-[100] transition-opacity duration-280 ${visible ? 'opacity-100' : 'opacity-0'}`} />
-            <div className={`fixed top-0 right-0 h-screen w-[460px] bg-white dark:bg-[#1e2a3a] z-[101] flex flex-col shadow-[-4px_0_24px_rgba(0,0,0,0.18)] transition-transform duration-280 ease-in-out ${visible ? 'translate-x-0' : 'translate-x-full'}`}>
+            <div onClick={onClose} className={`fixed inset-0 bg-black/45 z-100 transition-opacity duration-280 ${visible ? 'opacity-100' : 'opacity-0'}`} />
+            <div className={`fixed top-0 right-0 h-screen w-full sm:w-115 bg-white dark:bg-[#1e2a3a] z-101 flex flex-col shadow-[-4px_0_24px_rgba(0,0,0,0.18)] transition-transform duration-280 ease-in-out ${visible ? 'translate-x-0' : 'translate-x-full'}`}>
 
                 {/* Header */}
                 <div className="px-6 pt-6 pb-4 border-b border-[#e5e7eb] dark:border-[#2d3748] shrink-0 flex items-start justify-between">
@@ -203,8 +203,8 @@ function XonaDrawer({ open, onClose }) {
 
     return (
         <>
-            <div onClick={onClose} className={`fixed inset-0 bg-black/45 z-[100] transition-opacity duration-280 ${visible ? 'opacity-100' : 'opacity-0'}`} />
-            <div className={`fixed top-0 right-0 h-screen w-[360px] bg-white dark:bg-[#1e2a3a] z-[101] flex flex-col shadow-[-4px_0_24px_rgba(0,0,0,0.18)] transition-transform duration-280 ease-in-out ${visible ? 'translate-x-0' : 'translate-x-full'}`}>
+            <div onClick={onClose} className={`fixed inset-0 bg-black/45 z-100 transition-opacity duration-280 ${visible ? 'opacity-100' : 'opacity-0'}`} />
+            <div className={`fixed top-0 right-0 h-screen w-full sm:w-90 bg-white dark:bg-[#1e2a3a] z-101 flex flex-col shadow-[-4px_0_24px_rgba(0,0,0,0.18)] transition-transform duration-280 ease-in-out ${visible ? 'translate-x-0' : 'translate-x-full'}`}>
 
                 <div className="px-6 pt-6 pb-4 border-b border-[#e5e7eb] dark:border-[#2d3748] shrink-0 flex items-center justify-between">
                     <h2 className="m-0 text-lg font-bold text-[#1a1a2e] dark:text-[#e2e8f0]">Xonani qo'shish</h2>
@@ -256,7 +256,7 @@ function KurslarTab({ dark, onAddClick }) {
                 ))}
             </div>
 
-            <div className="grid grid-cols-4 gap-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5">
                 {mockCourses.map((course, i) => {
                     const bg = dark ? cardColorsDark[i % cardColorsDark.length] : cardColors[i % cardColors.length]
                     return (
@@ -308,7 +308,7 @@ function XonalarTab({ onAddClick }) {
                 ))}
             </div>
 
-            <div className="grid grid-cols-4 gap-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5">
                 {mockRooms.map(room => (
                     <div
                         key={room.name}

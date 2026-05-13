@@ -20,6 +20,7 @@ import MonetizationOnIcon from '@mui/icons-material/MonetizationOn'
 import SendIcon from '@mui/icons-material/Send'
 import HelpIcon from '@mui/icons-material/Help'
 import TelegramIcon from '@mui/icons-material/Telegram'
+import MenuIcon from '@mui/icons-material/Menu'
 
 const navItems = [
     { text: 'Asosiy',        icon: <HomeIcon fontSize="small" />,         path: '/dashboard/asosiy' },
@@ -43,9 +44,10 @@ const boshqarishMenu = [
 ]
 
 export default function Homepage() {
-    const [dark, setDark]           = useState(false)
-    const [menuOpen, setMenuOpen]   = useState(false)
+    const [dark, setDark]               = useState(false)
+    const [menuOpen, setMenuOpen]       = useState(false)
     const [menuVisible, setMenuVisible] = useState(false)
+    const [sidebarOpen, setSidebarOpen] = useState(false)
 
     const navigate   = useNavigate()
     const location   = useLocation()
@@ -54,7 +56,6 @@ export default function Homepage() {
 
     const isBoshqarish = location.pathname.includes('boshqarish')
 
-    /* Sync dark class on <html> for Tailwind dark: variant */
     useEffect(() => {
         document.documentElement.classList.toggle('dark', dark)
     }, [dark])
@@ -78,6 +79,16 @@ export default function Homepage() {
         return () => document.removeEventListener('mousedown', handler)
     }, [menuOpen])
 
+    /* On mobile: navigate directly + close sidebar; on desktop: show popup */
+    const handleBoshqarishClick = () => {
+        if (window.innerWidth < 768) {
+            navigate('/dashboard/boshqarish')
+            setSidebarOpen(false)
+        } else {
+            toggleMenu()
+        }
+    }
+
     const goTo = (tab) => {
         navigate(`/dashboard/boshqarish?tab=${tab}`)
         closeMenu()
@@ -89,10 +100,18 @@ export default function Homepage() {
 
     return (
         <ThemeContext.Provider value={dark}>
-            <div className="flex h-screen bg-[#f0f2f5] dark:bg-[#111827]">
+            <div className="flex h-screen bg-[#f0f2f5] dark:bg-[#111827] overflow-hidden">
+
+                {/* ═══════ MOBILE OVERLAY ═══════ */}
+                {sidebarOpen && (
+                    <div
+                        className="fixed inset-0 bg-black/50 z-30 md:hidden"
+                        onClick={() => setSidebarOpen(false)}
+                    />
+                )}
 
                 {/* ═══════ SIDEBAR ═══════ */}
-                <aside className="w-55 min-w-55 bg-white dark:bg-[#1e2a3a] flex flex-col shadow-[2px_0_8px_rgba(0,0,0,0.07)] dark:shadow-[2px_0_8px_rgba(0,0,0,0.3)] z-30 h-screen sticky top-0">
+                <aside className={`fixed md:sticky top-0 inset-y-0 left-0 w-55 min-w-55 bg-white dark:bg-[#1e2a3a] flex flex-col shadow-[2px_0_8px_rgba(0,0,0,0.07)] dark:shadow-[2px_0_8px_rgba(0,0,0,0.3)] z-40 h-screen transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
 
                     {/* Logo */}
                     <div className="flex items-center gap-2.5 px-4 py-5 border-b border-[#f0f0f0] dark:border-[#2d3748]">
@@ -103,12 +122,12 @@ export default function Homepage() {
                     </div>
 
                     {/* Nav */}
-                    <nav className="flex-1 px-2.5 py-3 flex flex-col gap-1">
+                    <nav className="flex-1 px-2.5 py-3 flex flex-col gap-1 overflow-y-auto">
                         {navItems.map(item => (
                             <NavLink
                                 key={item.text}
                                 to={item.path}
-                                onClick={closeMenu}
+                                onClick={() => { setSidebarOpen(false); closeMenu() }}
                                 className={({ isActive }) =>
                                     `${sidebarLinkBase} ${isActive ? sidebarActive : sidebarInactive}`
                                 }
@@ -121,7 +140,7 @@ export default function Homepage() {
                         {/* Boshqarish */}
                         <button
                             ref={triggerRef}
-                            onClick={toggleMenu}
+                            onClick={handleBoshqarishClick}
                             className={`${sidebarLinkBase} ${isBoshqarish || menuOpen ? sidebarActive : sidebarInactive}`}
                         >
                             <span className="flex items-center"><SettingsIcon fontSize="small" /></span>
@@ -144,7 +163,7 @@ export default function Homepage() {
                     </div>
                 </aside>
 
-                {/* ═══════ BOSHQARISH POPUP PANEL ═══════ */}
+                {/* ═══════ BOSHQARISH POPUP PANEL (desktop only) ═══════ */}
                 {menuOpen && (
                     <div
                         ref={panelRef}
@@ -169,25 +188,39 @@ export default function Homepage() {
                 )}
 
                 {/* ═══════ MAIN CONTENT ═══════ */}
-                <div className="flex-1 flex flex-col overflow-hidden">
+                <div className="flex-1 flex flex-col overflow-hidden min-w-0">
 
                     {/* Header */}
-                    <header className="h-15 bg-white dark:bg-[#1e2a3a] flex items-center justify-between px-6 gap-4 shadow-[0_2px_8px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)] sticky top-0 z-9">
-                        <div className="flex items-center gap-2 bg-[#f5f5f5] dark:bg-[#0f1827] rounded-[10px] px-3.5 py-1.5 border border-[#e0e0e0] dark:border-[#2d3748]">
-                            <SearchIcon sx={{ color: '#888', fontSize: 18 }} />
-                            <input
-                                type="text"
-                                placeholder="Qidirish..."
-                                className="border-none outline-none bg-transparent text-sm text-[#1a1a2e] dark:text-[#e2e8f0] w-45"
-                            />
+                    <header className="h-15 bg-white dark:bg-[#1e2a3a] flex items-center justify-between px-4 md:px-6 gap-3 shadow-[0_2px_8px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)] sticky top-0 z-9 shrink-0">
+
+                        {/* Left */}
+                        <div className="flex items-center gap-3">
+                            {/* Hamburger – mobile only */}
+                            <button
+                                onClick={() => setSidebarOpen(s => !s)}
+                                className="md:hidden border-none bg-transparent cursor-pointer text-[#555] dark:text-[#94a3b8] flex items-center p-1 rounded-lg hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors"
+                            >
+                                <MenuIcon />
+                            </button>
+                            {/* Search – desktop only */}
+                            <div className="hidden md:flex items-center gap-2 bg-[#f5f5f5] dark:bg-[#0f1827] rounded-[10px] px-3.5 py-1.5 border border-[#e0e0e0] dark:border-[#2d3748]">
+                                <SearchIcon sx={{ color: '#888', fontSize: 18 }} />
+                                <input
+                                    type="text"
+                                    placeholder="Qidirish..."
+                                    className="border-none outline-none bg-transparent text-sm text-[#1a1a2e] dark:text-[#e2e8f0] w-45"
+                                />
+                            </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <select className="border border-[#e0e0e0] dark:border-[#2d3748] rounded-lg px-2.5 py-1.5 text-[13px] cursor-pointer outline-none text-[#888] dark:text-[#94a3b8] bg-white dark:bg-[#1e2a3a]">
+
+                        {/* Right */}
+                        <div className="flex items-center gap-2 md:gap-4">
+                            <select className="hidden sm:block border border-[#e0e0e0] dark:border-[#2d3748] rounded-lg px-2.5 py-1.5 text-[13px] cursor-pointer outline-none text-[#888] dark:text-[#94a3b8] bg-white dark:bg-[#1e2a3a]">
                                 <option>O'zbekcha</option>
                                 <option>Русский</option>
                                 <option>English</option>
                             </select>
-                            <button className="bg-transparent hover:bg-[#f5f5f5] dark:hover:bg-[#1e2a3a] border border-[#e0e0e0] dark:border-[#2d3748] rounded-lg px-2.5 py-1.5 cursor-pointer text-lg text-[#555] transition-colors duration-200">
+                            <button className="hidden sm:flex bg-transparent hover:bg-[#f5f5f5] dark:hover:bg-[#1e2a3a] border border-[#e0e0e0] dark:border-[#2d3748] rounded-lg px-2.5 py-1.5 cursor-pointer text-lg text-[#555] transition-colors duration-200">
                                 🔔
                             </button>
                             <button
@@ -202,7 +235,7 @@ export default function Homepage() {
                         </div>
                     </header>
 
-                    <main className="flex-1 overflow-y-auto p-7">
+                    <main className="flex-1 overflow-y-auto p-4 md:p-7">
                         <Outlet />
                     </main>
                 </div>
