@@ -8,10 +8,10 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 
 const statsConfig = [
     { label: 'Sinflar',       value: 0, Icon: ClassIcon,       color: '#7E56D8', bg: '#ede8fb' },
-    { label: 'Fanlar',        value: 0, Icon: BookIcon,         color: '#2196f3', bg: '#e3f2fd' },
-    { label: 'Talabalar',     value: 1, Icon: SchoolIcon,       color: '#009688', bg: '#e0f7f4' },
-    { label: "Sovg'alar",     value: 3, Icon: CardGiftcardIcon, color: '#f59e0b', bg: '#fff8e1' },
-    { label: "O'qituvchilar", value: 0, Icon: PeopleIcon,       color: '#e91e63', bg: '#fce4ec' },
+    { label: 'Fanlar',        value: 0, Icon: BookIcon,         color: '#7E56D8', bg: '#ede8fb' },
+    { label: 'Talabalar',     value: 1, Icon: SchoolIcon,       color: '#7E56D8', bg: '#ede8fb' },
+    { label: "Sovg'alar",     value: 3, Icon: CardGiftcardIcon, color: '#7E56D8', bg: '#ede8fb' },
+    { label: "O'qituvchilar", value: 0, Icon: PeopleIcon,       color: '#7E56D8', bg: '#ede8fb' },
 ]
 
 export default function Main() {

@@ -2,7 +2,19 @@
   "permissions": {
     "allow": [
       "Bash(git init *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git remote *)",
+      "Bash(git branch *)",
+      "Bash(git push *)",
+      "Bash(git -C \"d:/Google Inshaallah/7-oy/2-dars\" status)",
+      "Bash(git -C \"d:/Google Inshaallah/7-oy/2-dars\" log --oneline -5)",
+      "Bash(git -C \"d:/Google Inshaallah/7-oy/2-dars\" add src/components/Homepage.jsx src/components/Login.jsx src/components/Main.jsx src/components/Settings.jsx src/components/Teachers.jsx src/index.css)",
+      "Bash(git -C 'd:/Google Inshaallah/7-oy/2-dars' commit -m ' *)",
+      "Bash(git -C \"d:/Google Inshaallah/7-oy/2-dars\" push origin main)",
+      "Bash(git -C \"d:/Google Inshaallah/7-oy/2-dars\" diff --stat)",
+      "Bash(git -C \"d:/Google Inshaallah/7-oy/2-dars\" log --oneline -3)",
+      "Bash(git -C \"d:/Google Inshaallah/7-oy/2-dars\" add src/components/Homepage.jsx src/components/Login.jsx src/components/Main.jsx src/components/Settings.jsx src/components/Teachers.jsx)"
     ]
   }
 }

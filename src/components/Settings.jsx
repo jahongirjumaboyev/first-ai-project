@@ -7,25 +7,17 @@ import EditIcon from '@mui/icons-material/Edit'
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import CloseIcon from '@mui/icons-material/Close'
-import MonetizationOnIcon from '@mui/icons-material/MonetizationOn'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 
 const tabs = [
-    { id: 'kurslar',   label: 'Kurslar' },
-    { id: 'xonalar',   label: 'Xonalar' },
-    { id: 'filiallar', label: 'Filiallar' },
-    { id: 'xodimlar',  label: 'Hodimlar' },
-    { id: 'rollar',    label: 'Rollar' },
-    { id: 'coin',      label: 'Coin' },
-    { id: 'sabablar',  label: 'Sabablar' },
-    { id: 'xabar',     label: 'Xabar yuborish' },
-    { id: 'faq',       label: 'FAQ' },
-    { id: 'telegram',  label: 'Telegram bot' },
+    { id: 'kurslar',  label: 'Kurslar' },
+    { id: 'xonalar',  label: 'Xonalar' },
+    { id: 'xodimlar', label: 'Hodimlar' },
+    { id: 'rollar',   label: 'Rollar' },
+    { id: 'xabar',    label: 'Xabar yuborish' },
+    { id: 'faq',      label: 'FAQ' },
+    { id: 'telegram', label: 'Telegram bot' },
 ]
-
-const courseBranches = ['Filial 1', 'Filial 2', 'Arxiv']
-const cardColors     = ['#f8f9ff', '#ffffff', '#fffde7', '#f0fdf4', '#fef2f2', '#f5f0ff']
-const cardColorsDark = ['#1e2535', '#1a2336', '#2a2810', '#0d2418', '#2a1018', '#1e1535']
 
 const mockCourses = [
     { id: 1, title: 'Human Resources Manager', desc: "A little about the company and the team that you'll be working with.", duration: '90 min', period: '3 oy', price: '1 000 000 mln' },
@@ -36,7 +28,6 @@ const mockCourses = [
     { id: 6, title: 'Human Resources Manager', desc: "A little about the company and the team that you'll be working with.", duration: '90 min', period: '3 oy', price: '1 000 000 mln' },
 ]
 
-const xonaBranches = ['Filial 1', 'Filial 2', 'Filial 3', 'Arxiv']
 const mockRooms = [
     { name: 'Genious room',       capacity: 15 },
     { name: 'Impact room',        capacity: 12 },
@@ -55,7 +46,6 @@ const initXonaForm = { name: '', capacity: '' }
 
 /* shared Tailwind helpers */
 const drawerInputCls = 'w-full border border-[#e5e7eb] dark:border-[#2d3748] rounded-[10px] px-3.5 py-2.5 text-sm bg-white dark:bg-[#111827] text-[#1a1a2e] dark:text-[#e2e8f0] outline-none focus:border-[#7E56D8] transition-colors duration-200'
-const branchBtn = (active) => `px-4 py-1.5 rounded-lg text-[13px] font-medium cursor-pointer transition-all duration-150 border ${active ? 'border-[#7E56D8] bg-[#7E56D8]/10 text-[#7E56D8]' : 'border-[#e5e7eb] dark:border-[#2d3748] bg-transparent text-[#888] dark:text-[#94a3b8]'}`
 const addBtn = 'flex items-center gap-1.5 bg-[#7E56D8] hover:bg-[#6a44c0] text-white border-none rounded-[10px] px-[18px] py-2.5 text-[13px] font-semibold cursor-pointer transition-colors duration-200'
 const cancelBtn = 'px-6 py-2.5 rounded-[10px] text-sm font-medium border border-[#e5e7eb] dark:border-[#2d3748] bg-transparent text-[#1a1a2e] dark:text-[#e2e8f0] cursor-pointer hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors duration-200'
 const saveBtn = 'px-7 py-2.5 rounded-[10px] text-sm font-semibold border-none bg-[#7E56D8] hover:bg-[#6a44c0] text-white cursor-pointer transition-colors duration-200'
@@ -101,21 +91,6 @@ function KursDrawer({ open, onClose }) {
                     <div>
                         <label className="block text-[13px] font-medium text-[#1a1a2e] dark:text-[#e2e8f0] mb-1.5">Nomi</label>
                         <input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="HR Manager..." className={drawerInputCls} />
-                    </div>
-
-                    <div>
-                        <div className="flex items-center justify-between mb-2.5">
-                            <label className="text-[13px] font-medium text-[#1a1a2e] dark:text-[#e2e8f0]">Kurs mavjud bo'ledigon filiallar</label>
-                            <button onClick={() => setForm(p => ({ ...p, filials: ['Filial 1', 'Filial 2'] }))} className="border-none bg-transparent cursor-pointer text-[13px] font-medium text-[#7E56D8] p-0">
-                                Hammasini tanlash
-                            </button>
-                        </div>
-                        {['Filial 1', 'Filial 2'].map(f => (
-                            <label key={f} className="flex items-center gap-2.5 mb-2 cursor-pointer">
-                                <input type="checkbox" checked={form.filials.includes(f)} onChange={() => toggleFilial(f)} className="w-[18px] h-[18px] accent-[#7E56D8] cursor-pointer" />
-                                <span className="text-sm text-[#1a1a2e] dark:text-[#e2e8f0]">{f}</span>
-                            </label>
-                        ))}
                     </div>
 
                     <div>
@@ -240,9 +215,7 @@ function XonaDrawer({ open, onClose }) {
 /* ══════════════════════════════════
    Kurslar Tab
 ══════════════════════════════════ */
-function KurslarTab({ dark, onAddClick }) {
-    const [branch, setBranch] = useState(courseBranches[0])
-
+function KurslarTab({ onAddClick }) {
     return (
         <div>
             <div className="flex items-center justify-between mb-4">
@@ -250,20 +223,11 @@ function KurslarTab({ dark, onAddClick }) {
                 <button onClick={onAddClick} className={addBtn}><AddIcon sx={{ fontSize: 17 }} /> Kurslar qo'shish</button>
             </div>
 
-            <div className="flex gap-2 mb-5">
-                {courseBranches.map(b => (
-                    <button key={b} onClick={() => setBranch(b)} className={branchBtn(b === branch)}>{b}</button>
-                ))}
-            </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5">
-                {mockCourses.map((course, i) => {
-                    const bg = dark ? cardColorsDark[i % cardColorsDark.length] : cardColors[i % cardColors.length]
-                    return (
+                {mockCourses.map((course) => (
                         <div
                             key={course.id}
-                            className="rounded-[14px] p-4 border border-[#ececec] dark:border-[#2d3748] flex flex-col gap-2 hover:shadow-[0_4px_16px_rgba(126,86,216,0.13)] transition-shadow duration-200"
-                            style={{ background: bg }}
+                            className="rounded-[14px] p-4 bg-[#f5f5f5] dark:bg-[#162032] border border-[#e5e7eb] dark:border-[#2d3748] flex flex-col gap-2 hover:shadow-[0_4px_16px_rgba(126,86,216,0.13)] transition-shadow duration-200"
                         >
                             <div className="flex items-start justify-between gap-2">
                                 <span className="text-[13px] font-bold text-[#1a1a2e] dark:text-[#e2e8f0] leading-snug">{course.title}</span>
@@ -279,8 +243,7 @@ function KurslarTab({ dark, onAddClick }) {
                                 ))}
                             </div>
                         </div>
-                    )
-                })}
+                ))}
             </div>
         </div>
     )
@@ -290,8 +253,6 @@ function KurslarTab({ dark, onAddClick }) {
    Xonalar Tab
 ══════════════════════════════════ */
 function XonalarTab({ onAddClick }) {
-    const [branch, setBranch] = useState(xonaBranches[0])
-
     return (
         <div>
             <div className="flex items-center justify-between mb-4">
@@ -302,11 +263,6 @@ function XonalarTab({ onAddClick }) {
                 <button onClick={onAddClick} className={addBtn}><AddIcon sx={{ fontSize: 17 }} /> Xonani qo'shish</button>
             </div>
 
-            <div className="flex gap-2 mb-5">
-                {xonaBranches.map(b => (
-                    <button key={b} onClick={() => setBranch(b)} className={branchBtn(b === branch)}>{b}</button>
-                ))}
-            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5">
                 {mockRooms.map(room => (
@@ -360,7 +316,7 @@ export default function Settings() {
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'kurslar': return <KurslarTab dark={dark} onAddClick={() => setDrawerOpen(true)} />
+            case 'kurslar': return <KurslarTab onAddClick={() => setDrawerOpen(true)} />
             case 'xonalar': return <XonalarTab onAddClick={() => setXonaOpen(true)} />
             default: return <PlaceholderTab label={tabs.find(t => t.id === activeTab)?.label || ''} />
         }

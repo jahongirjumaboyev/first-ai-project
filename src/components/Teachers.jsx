@@ -89,12 +89,12 @@ export default function Teachers() {
                     </p>
                 </div>
                 <div className="flex gap-2.5 shrink-0">
-                    <button className="flex items-center gap-1.5 bg-transparent border border-[#e8e8e8] dark:border-[#2d3748] text-[#1a1a2e] dark:text-[#e2e8f0] rounded-[10px] px-[18px] py-2.5 text-[13px] font-medium cursor-pointer hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors duration-200">
+                    <button className="flex items-center gap-1.5 bg-transparent border border-[#e8e8e8] dark:border-[#2d3748] text-[#1a1a2e] dark:text-[#e2e8f0] rounded-[10px] px-4.5 py-2.5 text-[13px] font-medium cursor-pointer hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors duration-200">
                         <ShareIcon sx={{ fontSize: 16 }} /> Export
                     </button>
                     <button
                         onClick={() => setDrawerOpen(true)}
-                        className="flex items-center gap-1.5 bg-[#7E56D8] hover:bg-[#6a44c0] text-white border-none rounded-[10px] px-[18px] py-2.5 text-[13px] font-semibold cursor-pointer transition-colors duration-200"
+                        className="flex items-center gap-1.5 bg-[#7E56D8] hover:bg-[#6a44c0] text-white border-none rounded-[10px] px-4.5 py-2.5 text-[13px] font-semibold cursor-pointer transition-colors duration-200"
                     >
                         <AddIcon sx={{ fontSize: 18 }} /> O'qituvchi qo'shish
                     </button>
@@ -106,11 +106,11 @@ export default function Teachers() {
 
                 {/* Filter bar */}
                 <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center px-5 py-3.5 border-b border-[#e8e8e8] dark:border-[#2d3748]">
-                    <button className="flex items-center gap-1.5 bg-transparent border border-[#e8e8e8] dark:border-[#2d3748] text-[#6b7280] dark:text-[#94a3b8] rounded-lg px-3.5 py-[7px] text-[13px] cursor-pointer hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors duration-200 w-fit">
+                    <button className="flex items-center gap-1.5 bg-transparent border border-[#e8e8e8] dark:border-[#2d3748] text-[#6b7280] dark:text-[#94a3b8] rounded-lg px-3.5 py-1.75 text-[13px] cursor-pointer hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors duration-200 w-fit">
                         <FilterListIcon sx={{ fontSize: 18 }} /> Filters
                     </button>
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                        <div className="flex items-center gap-2 bg-[#f5f5f5] dark:bg-[#0f1827] border border-[#e8e8e8] dark:border-[#2d3748] rounded-lg px-3 py-[7px]">
+                        <div className="flex items-center gap-2 bg-[#f5f5f5] dark:bg-[#0f1827] border border-[#e8e8e8] dark:border-[#2d3748] rounded-lg px-3 py-1.75">
                             <SearchIcon sx={{ color: '#94a3b8', fontSize: 18 }} />
                             <input
                                 value={search}
@@ -119,7 +119,7 @@ export default function Teachers() {
                                 className="border-none outline-none bg-transparent text-[13px] text-[#1a1a2e] dark:text-[#e2e8f0] w-full sm:w-45"
                             />
                         </div>
-                        <button className="flex items-center gap-1.5 bg-transparent border border-[#e8e8e8] dark:border-[#2d3748] text-[#6b7280] dark:text-[#94a3b8] rounded-lg px-3.5 py-[7px] text-[13px] cursor-pointer hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors duration-200 w-fit">
+                        <button className="flex items-center gap-1.5 bg-transparent border border-[#e8e8e8] dark:border-[#2d3748] text-[#6b7280] dark:text-[#94a3b8] rounded-lg px-3.5 py-1.75 text-[13px] cursor-pointer hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors duration-200 w-fit">
                             Arxiv <ArchiveIcon sx={{ fontSize: 18 }} />
                         </button>
                     </div>
@@ -139,7 +139,7 @@ export default function Teachers() {
 
                 {/* Table */}
                 <div className="overflow-x-auto">
-                    <table className="w-full border-collapse text-[13px]">
+                    <table className="w-full min-w-max border-collapse text-[13px]">
                         <thead>
                             <tr className="bg-[#f9f8ff] dark:bg-[#162032]">
                                 <th className="px-4 py-3 w-11">
@@ -170,7 +170,7 @@ export default function Teachers() {
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-2.5">
-                                                <div className="w-[34px] h-[34px] rounded-full bg-linear-to-br from-[#7E56D8] to-[#5c3fb5] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+                                                <div className="w-8.5 h-8.5 rounded-full bg-linear-to-br from-[#7E56D8] to-[#5c3fb5] flex items-center justify-center text-white text-[11px] font-bold shrink-0">
                                                     {t.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
                                                 </div>
                                                 <div>
@@ -240,7 +240,7 @@ export default function Teachers() {
             />
 
             {/* Drawer */}
-            <div className={`fixed top-0 right-0 bottom-0 w-full sm:w-105 bg-white dark:bg-[#1e2a3a] z-201 flex flex-col shadow-[-6px_0_32px_rgba(0,0,0,0.18)] transition-transform duration-350 ease-in-out ${drawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+            <div className={`fixed top-0 right-0 bottom-0 w-full sm:w-88 bg-white dark:bg-[#1e2a3a] z-201 flex flex-col shadow-[-6px_0_32px_rgba(0,0,0,0.18)] transition-transform duration-350 ease-in-out ${drawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
 
                 {/* Header */}
                 <div className="px-6 pt-[22px] pb-4 border-b border-[#e8e8e8] dark:border-[#2d3748] shrink-0">
@@ -286,27 +286,39 @@ export default function Teachers() {
 
                     <div>
                         {labelEl('Guruh')}
-                        <div
-                            className={`${inputCls} py-[7px] px-3 flex flex-wrap gap-1.5 items-center cursor-text`}
-                            onClick={() => document.getElementById('groupInput').focus()}
-                        >
-                            <SearchIcon sx={{ color: '#94a3b8', fontSize: 18, flexShrink: 0 }} />
-                            {form.groups.map((g, i) => (
-                                <span key={i} className="flex items-center gap-1 bg-[#f0f0f0] dark:bg-[#2d3748] text-[#1a1a2e] dark:text-[#e2e8f0] rounded-md px-2 py-0.5 text-xs">
-                                    {g}
-                                    <button onClick={() => removeGroup(i)} className="border-none bg-transparent cursor-pointer text-[#6b7280] flex p-0 leading-none">
-                                        <CloseIcon sx={{ fontSize: 14 }} />
-                                    </button>
-                                </span>
-                            ))}
+
+                        {/* Added groups as tags */}
+                        {form.groups.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mb-2">
+                                {form.groups.map((g, i) => (
+                                    <span key={i} className="flex items-center gap-1 bg-[#ede8fb] dark:bg-[#2a1f4a] text-[#7E56D8] rounded-lg px-2.5 py-1 text-[13px] font-medium">
+                                        {g}
+                                        <button
+                                            onClick={() => removeGroup(i)}
+                                            className="border-none bg-transparent cursor-pointer text-[#7E56D8] flex p-0 leading-none hover:text-[#e53935] transition-colors duration-150"
+                                        >
+                                            <CloseIcon sx={{ fontSize: 14 }} />
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Input + add button */}
+                        <div className="flex gap-2">
                             <input
-                                id="groupInput"
                                 value={form.groupInput}
                                 onChange={e => upd('groupInput', e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addGroup() } }}
-                                placeholder={form.groups.length === 0 ? 'Guruh kiriting...' : ''}
-                                className="border-none outline-none bg-transparent text-[13px] text-[#1a1a2e] dark:text-[#e2e8f0] min-w-[80px] flex-1"
+                                placeholder="Guruh nomini kiriting..."
+                                className={`${inputCls} flex-1`}
                             />
+                            <button
+                                onClick={addGroup}
+                                className="flex items-center gap-1 bg-[#7E56D8] hover:bg-[#6a44c0] text-white border-none rounded-[10px] px-4 py-2.5 text-[13px] font-semibold cursor-pointer transition-colors duration-200 shrink-0"
+                            >
+                                <AddIcon sx={{ fontSize: 16 }} /> Qo'shish
+                            </button>
                         </div>
                     </div>
 
