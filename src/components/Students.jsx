@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { apiPost, apiGet } from '../api'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import SearchIcon from '@mui/icons-material/Search'
 import AddIcon from '@mui/icons-material/Add'
@@ -16,61 +17,31 @@ import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined'
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined'
 
 
-const mockStudents = [
-    { id: 1,  name: 'Ali Valiyev',       groups: ['N26', 'n105'], phone: '+998976541223', email: 'ali@gmail.com',     birth: '12.12.2010', address: 'Sirdaryo',    created: '12.05.2026' },
-    { id: 2,  name: 'Salim Qodirov',     groups: ['n105'],        phone: '+998977777777', email: 'salim@gmail.com',   birth: '14.01.2007', address: 'Buxoro',      created: '14.05.2026' },
-    { id: 3,  name: 'Bobur Karimov',     groups: ['n105'],        phone: '+998999999999', email: 'bobur@gmail.com',   birth: '14.03.2002', address: 'Toshkent',    created: '14.05.2026' },
-    { id: 4,  name: 'Qodir Salimov',     groups: ['n105'],        phone: '+998911111111', email: 'qodir@gmail.com',   birth: '29.04.2003', address: "O'zbekiston", created: '14.05.2026' },
-    { id: 5,  name: 'Nodira Yusupova',   groups: ['N26'],         phone: '+998901234567', email: 'nodira@gmail.com',  birth: '05.07.2001', address: 'Toshkent',    created: '13.05.2026' },
-    { id: 6,  name: 'Jasur Toshmatov',   groups: ['n105'],        phone: '+998931234567', email: 'jasur@gmail.com',   birth: '22.03.2003', address: 'Namangan',    created: '13.05.2026' },
-    { id: 7,  name: 'Malika Karimova',   groups: ['N26', 'n105'], phone: '+998941234567', email: 'malika@gmail.com',  birth: '11.11.2000', address: 'Samarqand',   created: '12.05.2026' },
-    { id: 8,  name: 'Sardor Nazarov',    groups: ['n105'],        phone: '+998951234567', email: 'sardor@gmail.com',  birth: '18.06.2002', address: "Farg'ona",    created: '11.05.2026' },
-    { id: 9,  name: 'Zulfiya Holiqova',  groups: ['N26'],         phone: '+998971234567', email: 'zulfiya@gmail.com', birth: '30.09.1999', address: 'Andijon',     created: '10.05.2026' },
-    { id: 10, name: 'Doniyor Mirzayev',  groups: ['n105'],        phone: '+998981234567', email: 'doniyor@gmail.com', birth: '14.02.2004', address: 'Qashqadaryo', created: '09.05.2026' },
-    { id: 11, name: 'Feruza Saidova',    groups: ['N26'],         phone: '+998902345678', email: 'feruza@gmail.com',  birth: '08.08.2003', address: 'Toshkent',    created: '08.05.2026' },
-    { id: 12, name: 'Ibrohim Rahimov',   groups: ['n105'],        phone: '+998912345678', email: 'ibrohim@gmail.com', birth: '25.01.2000', address: 'Buxoro',      created: '07.05.2026' },
-    { id: 13, name: 'Dilnoza Ortiqova',  groups: ['N26', 'n105'], phone: '+998922345678', email: 'dilnoza@gmail.com', birth: '19.05.2001', address: 'Namangan',    created: '06.05.2026' },
-    { id: 14, name: 'Ulugbek Xolmatov', groups: ['n105'],        phone: '+998932345678', email: 'ulugbek@gmail.com', birth: '03.03.2002', address: 'Sirdaryo',    created: '05.05.2026' },
-    { id: 15, name: 'Shahlo Tursunova',  groups: ['N26'],         phone: '+998942345678', email: 'shahlo@gmail.com',  birth: '27.07.2000', address: 'Samarqand',   created: '04.05.2026' },
-    { id: 16, name: 'Azizbek Qodirov',  groups: ['n105'],        phone: '+998952345678', email: 'aziz@gmail.com',    birth: '12.10.2003', address: "Farg'ona",    created: '03.05.2026' },
-    { id: 17, name: 'Mohinur Hasanova',  groups: ['N26'],         phone: '+998962345678', email: 'mohinur@gmail.com', birth: '06.06.2001', address: 'Toshkent',    created: '02.05.2026' },
-    { id: 18, name: 'Sanjar Usmonov',    groups: ['n105'],        phone: '+998972345678', email: 'sanjar@gmail.com',  birth: '21.12.2002', address: 'Andijon',     created: '01.05.2026' },
-    { id: 19, name: 'Barno Yuldasheva',  groups: ['N26', 'n105'], phone: '+998982345678', email: 'barno@gmail.com',   birth: '15.04.1999', address: 'Qashqadaryo', created: '30.04.2026' },
-    { id: 20, name: 'Otabek Ergashev',   groups: ['n105'],        phone: '+998903456789', email: 'otabek@gmail.com',  birth: '09.09.2004', address: 'Buxoro',      created: '29.04.2026' },
-    { id: 21, name: 'Kamola Askarova',   groups: ['N26'],         phone: '+998913456789', email: 'kamola@gmail.com',  birth: '17.02.2003', address: 'Namangan',    created: '28.04.2026' },
-    { id: 22, name: 'Sherzod Tojiboyev', groups: ['n105'],        phone: '+998923456789', email: 'sherzod@gmail.com', birth: '04.04.2001', address: 'Toshkent',    created: '27.04.2026' },
-    { id: 23, name: 'Gulnora Xasanova',  groups: ['N26'],         phone: '+998933456789', email: 'gulnora@gmail.com', birth: '23.08.2000', address: 'Sirdaryo',    created: '26.04.2026' },
-    { id: 24, name: 'Ravshan Yunusov',   groups: ['n105'],        phone: '+998943456789', email: 'ravshan@gmail.com', birth: '31.10.2002', address: 'Samarqand',   created: '25.04.2026' },
-    { id: 25, name: 'Nargiza Boqiyeva',  groups: ['N26', 'n105'], phone: '+998953456789', email: 'nargiza@gmail.com', birth: '13.06.2001', address: "Farg'ona",    created: '24.04.2026' },
-    { id: 26, name: 'Firdavs Normatov',  groups: ['n105'],        phone: '+998963456789', email: 'firdavs@gmail.com', birth: '26.11.2003', address: 'Andijon',     created: '23.04.2026' },
-    { id: 27, name: 'Latofat Sultonova', groups: ['N26'],         phone: '+998973456789', email: 'latofat@gmail.com', birth: '02.01.2002', address: 'Qashqadaryo', created: '22.04.2026' },
-    { id: 28, name: 'Mirzo Hamidov',     groups: ['n105'],        phone: '+998983456789', email: 'mirzo@gmail.com',   birth: '16.03.2004', address: 'Buxoro',      created: '21.04.2026' },
-    { id: 29, name: 'Sarvinoz Nazarova', groups: ['N26'],         phone: '+998904567890', email: 'sarvinoz@gmail.com',birth: '07.05.2000', address: 'Namangan',    created: '20.04.2026' },
-    { id: 30, name: 'Husan Razzaqov',    groups: ['n105'],        phone: '+998914567890', email: 'husan@gmail.com',   birth: '20.07.2003', address: 'Toshkent',    created: '19.04.2026' },
-    { id: 31, name: 'Munira Xoliqova',   groups: ['N26', 'n105'], phone: '+998924567890', email: 'munira@gmail.com',  birth: '10.09.2001', address: 'Sirdaryo',    created: '18.04.2026' },
-    { id: 32, name: 'Bekzod Raximov',    groups: ['n105'],        phone: '+998934567890', email: 'bekzod@gmail.com',  birth: '28.02.2002', address: 'Samarqand',   created: '17.04.2026' },
-    { id: 33, name: 'Ozoda Qosimova',    groups: ['N26'],         phone: '+998944567890', email: 'ozoda@gmail.com',   birth: '11.12.1999', address: "Farg'ona",    created: '16.04.2026' },
-    { id: 34, name: 'Temur Boymurodov',  groups: ['n105'],        phone: '+998954567890', email: 'temur@gmail.com',   birth: '24.04.2004', address: 'Andijon',     created: '15.04.2026' },
-    { id: 35, name: 'Hulkar Madaminova', groups: ['N26'],         phone: '+998964567890', email: 'hulkar@gmail.com',  birth: '05.06.2003', address: 'Qashqadaryo', created: '14.04.2026' },
-    { id: 36, name: 'Sirojiddin Umarov', groups: ['n105'],        phone: '+998974567890', email: 'siroj@gmail.com',   birth: '18.08.2002', address: 'Buxoro',      created: '13.04.2026' },
-    { id: 37, name: 'Dilorom Tursunova', groups: ['N26', 'n105'], phone: '+998984567890', email: 'dilorom@gmail.com', birth: '01.10.2000', address: 'Namangan',    created: '12.04.2026' },
-    { id: 38, name: 'Anvar Xudoyberdiyev', groups: ['n105'],      phone: '+998905678901', email: 'anvar@gmail.com',   birth: '14.01.2003', address: 'Toshkent',    created: '11.04.2026' },
-    { id: 39, name: 'Nozima Ergasheva',  groups: ['N26'],         phone: '+998915678901', email: 'nozima@gmail.com',  birth: '29.03.2001', address: 'Sirdaryo',    created: '10.04.2026' },
-    { id: 40, name: 'Farhodjon Sobirov', groups: ['n105'],        phone: '+998925678901', email: 'farhod@gmail.com',  birth: '22.06.2004', address: 'Samarqand',   created: '09.04.2026' },
-]
-
 const PAGE_SIZE = 4
 
-const availableGroups = ['N26', 'n105', 'A15', 'B20', 'C10', 'D35']
+function toStudent(s) {
+    return {
+        id:      s.id,
+        name:    s.full_name ?? s.name ?? '—',
+        email:   s.email ?? '—',
+        phone:   s.phone ?? '—',
+        birth:   s.birth_date ?? '—',
+        address: s.address ?? '—',
+        groups:  Array.isArray(s.groups) ? s.groups.map(g => g?.name ?? g) : [],
+        created: s.createdAt ? new Date(s.createdAt).toLocaleDateString('uz-UZ') : '—',
+    }
+}
 
 const initForm = {
-    phone: '+998', name: '', email: '', birth: '01.01.2000',
+    phone: '+998', name: '', email: '', birth: '2000-01-01',
     groups: [], address: '', gender: '',
     showPassword: false, password: '', file: null,
 }
 
+
 export default function Students() {
-    const [students, setStudents]     = useState(mockStudents)
+    const [students, setStudents]     = useState([])
+    const [apiGroups, setApiGroups]   = useState([])
     const [selected, setSelected]     = useState([])
     const [search, setSearch]         = useState('')
     const [page, setPage]             = useState(1)
@@ -80,7 +51,26 @@ export default function Students() {
     const [groupModalOpen, setGroupModalOpen] = useState(false)
     const [groupSearch, setGroupSearch]     = useState('')
     const [tempGroups, setTempGroups]       = useState([])
+    const [saving, setSaving]               = useState(false)
+    const [toast, setToast]                 = useState(null)
     const fileRef = useRef(null)
+
+    const loadStudents = () =>
+        apiGet('/students?page=1&limit=100')
+            .then(d => setStudents((Array.isArray(d) ? d : d?.data ?? []).map(toStudent)))
+            .catch(() => {})
+
+    useEffect(() => {
+        loadStudents()
+        apiGet('/groups/all')
+            .then(d => setApiGroups(Array.isArray(d) ? d : d?.data ?? []))
+            .catch(() => {})
+    }, [])
+
+    function showToast(message, type) {
+        setToast({ message, type })
+        setTimeout(() => setToast(null), 3000)
+    }
 
     const filtered   = students.filter(s =>
         s.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -106,8 +96,9 @@ export default function Students() {
 
     const openGroupModal  = () => { setTempGroups([...form.groups]); setGroupSearch(''); setGroupModalOpen(true) }
     const closeGroupModal = () => setGroupModalOpen(false)
-    const toggleTempGroup = (g) => setTempGroups(prev => prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g])
+    const toggleTempGroup = (id) => setTempGroups(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
     const applyGroups     = () => { upd('groups', tempGroups); closeGroupModal() }
+    const getGroupName    = (id) => apiGroups.find(g => g.id === id)?.name ?? id
 
     const closeDrawer = () => { setDrawerOpen(false); setEditingId(null); setForm(initForm) }
 
@@ -122,18 +113,33 @@ export default function Students() {
         setSelected(prev => prev.filter(x => x !== id))
     }
 
-    const saveStudent = () => {
-        if (editingId !== null) {
-            setStudents(prev => prev.map(s =>
-                s.id === editingId
-                    ? { ...s, name: form.name, email: form.email, birth: form.birth, address: form.address, groups: form.groups }
-                    : s
-            ))
-        } else {
-            const newId = Date.now()
-            setStudents(prev => [{ id: newId, name: form.name, email: form.email, birth: form.birth, address: form.address, groups: form.groups, phone: form.phone, created: new Date().toLocaleDateString('uz-UZ') }, ...prev])
+    const saveStudent = async () => {
+        setSaving(true)
+        try {
+            const data = await apiPost('/students', {
+                full_name:  form.name,
+                email:      form.email,
+                password:   form.password,
+                phone:      form.phone,
+                address:    form.address,
+                birth_date: form.birth,
+            })
+            const studentId = data?.id ?? data?.data?.id
+            if (studentId && form.groups.length > 0) {
+                await Promise.allSettled(
+                    form.groups.map(groupId =>
+                        apiPost('/student-group', { student_id: studentId, group_id: groupId })
+                    )
+                )
+            }
+            await loadStudents()
+            showToast("✅ Talaba muvaffaqiyatli qo'shildi!", 'success')
+            setTimeout(() => closeDrawer(), 1200)
+        } catch (err) {
+            showToast(`⚠️ ${err.message}`, 'error')
+        } finally {
+            setSaving(false)
         }
-        closeDrawer()
     }
 
     /* Pagination button list */
@@ -149,6 +155,12 @@ export default function Students() {
 
     return (
         <div>
+            {/* Toast */}
+            {toast && (
+                <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-9999 flex items-center gap-2.5 px-4 sm:px-7 py-3 sm:py-3.5 rounded-[10px] text-[13px] sm:text-[15px] font-semibold text-white w-[calc(100vw-32px)] sm:w-auto text-center justify-center shadow-[0_6px_24px_rgba(0,0,0,0.25)] ${toast.type === 'success' ? 'bg-[#1F2D5C]' : 'bg-[#c0392b]'}`}>
+                    {toast.message}
+                </div>
+            )}
             {/* Page header */}
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start mb-5">
                 <div>
@@ -329,24 +341,21 @@ export default function Students() {
                             </div>
                             {/* Group list */}
                             <div className="px-6 py-3 flex flex-col gap-0.5 max-h-56 overflow-y-auto">
-                                {availableGroups
-                                    .filter(g => g.toLowerCase().includes(groupSearch.toLowerCase()))
-                                    .map(g => {
-                                        const checked = tempGroups.includes(g)
-                                        return (
-                                            <label key={g} className="flex items-center gap-3 px-2 py-2.5 rounded-lg cursor-pointer hover:bg-[#f5f0ff] dark:hover:bg-[#2a1f4a] transition-colors duration-150">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={checked}
-                                                    onChange={() => toggleTempGroup(g)}
-                                                    className="w-4 h-4 accent-[#7E56D8] cursor-pointer shrink-0"
-                                                />
-                                                <span className="text-[13px] font-medium text-[#1a1a2e] dark:text-[#e2e8f0]">{g}</span>
-                                            </label>
-                                        )
-                                    })
+                                {apiGroups
+                                    .filter(g => (g.name ?? '').toLowerCase().includes(groupSearch.toLowerCase()))
+                                    .map(g => (
+                                        <label key={g.id} className="flex items-center gap-3 px-2 py-2.5 rounded-lg cursor-pointer hover:bg-[#f5f0ff] dark:hover:bg-[#2a1f4a] transition-colors duration-150">
+                                            <input
+                                                type="checkbox"
+                                                checked={tempGroups.includes(g.id)}
+                                                onChange={() => toggleTempGroup(g.id)}
+                                                className="w-4 h-4 accent-[#7E56D8] cursor-pointer shrink-0"
+                                            />
+                                            <span className="text-[13px] font-medium text-[#1a1a2e] dark:text-[#e2e8f0]">{g.name}</span>
+                                        </label>
+                                    ))
                                 }
-                                {availableGroups.filter(g => g.toLowerCase().includes(groupSearch.toLowerCase())).length === 0 && (
+                                {apiGroups.filter(g => (g.name ?? '').toLowerCase().includes(groupSearch.toLowerCase())).length === 0 && (
                                     <p className="text-center text-[13px] text-[#6b7280] dark:text-[#94a3b8] py-4">Hech narsa topilmadi</p>
                                 )}
                             </div>
@@ -401,6 +410,17 @@ export default function Students() {
                     </div>
 
                     <div>
+                        {labelEl('Telefon raqam')}
+                        <input
+                            value={form.phone}
+                            onChange={e => upd('phone', e.target.value)}
+                            type="tel"
+                            placeholder="+998901234567"
+                            className={inputCls}
+                        />
+                    </div>
+
+                    <div>
                         {labelEl('Email')}
                         <div className="relative">
                             <EmailOutlinedIcon sx={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 18, color: '#94a3b8' }} />
@@ -412,7 +432,26 @@ export default function Students() {
                         {labelEl("Tug'ilgan sanasi")}
                         <div className="relative">
                             <CalendarTodayIcon sx={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: '#94a3b8' }} />
-                            <input value={form.birth} onChange={e => upd('birth', e.target.value)} placeholder="dd.mm.yyyy" className={`${inputCls} pl-10`} />
+                            <input type="date" value={form.birth} onChange={e => upd('birth', e.target.value)} className={`${inputCls} pl-10`} />
+                        </div>
+                    </div>
+
+                    <div>
+                        {labelEl('Parol')}
+                        <div className="relative">
+                            <input
+                                value={form.password}
+                                onChange={e => upd('password', e.target.value)}
+                                type={form.showPassword ? 'text' : 'password'}
+                                placeholder="Parolni kiriting"
+                                className={inputCls}
+                            />
+                            <span
+                                onClick={() => upd('showPassword', !form.showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-[#888] text-lg select-none"
+                            >
+                                {form.showPassword ? '🙈' : '👁️'}
+                            </span>
                         </div>
                     </div>
 
@@ -428,9 +467,9 @@ export default function Students() {
                         {labelEl('Guruh')}
                         {form.groups.length > 0 && (
                             <div className="flex flex-wrap gap-1.5 mb-2">
-                                {form.groups.map((g, i) => (
-                                    <span key={i} className="flex items-center gap-1 bg-[#ede8fb] dark:bg-[#2a1f4a] text-[#7E56D8] rounded-lg px-2.5 py-1 text-[13px] font-medium">
-                                        {g}
+                                {form.groups.map((id, i) => (
+                                    <span key={id} className="flex items-center gap-1 bg-[#ede8fb] dark:bg-[#2a1f4a] text-[#7E56D8] rounded-lg px-2.5 py-1 text-[13px] font-medium">
+                                        {getGroupName(id)}
                                         <button onClick={() => removeGroup(i)} className="border-none bg-transparent cursor-pointer text-[#7E56D8] flex p-0 leading-none hover:text-[#e53935] transition-colors duration-150">
                                             <CloseIcon sx={{ fontSize: 14 }} />
                                         </button>
@@ -489,8 +528,12 @@ export default function Students() {
                     >
                         Bekor qilish
                     </button>
-                    <button onClick={saveStudent} className="px-5.5 py-2.5 rounded-[10px] text-sm font-semibold border-none bg-[#7E56D8] hover:bg-[#6a44c0] text-white cursor-pointer transition-colors duration-200">
-                        Saqlash
+                    <button
+                        onClick={saveStudent}
+                        disabled={saving}
+                        className={`px-5.5 py-2.5 rounded-[10px] text-sm font-semibold border-none text-white transition-colors duration-200 ${saving ? 'bg-[#a78bda] cursor-not-allowed' : 'bg-[#7E56D8] hover:bg-[#6a44c0] cursor-pointer'}`}
+                    >
+                        {saving ? 'Saqlanmoqda...' : 'Saqlash'}
                     </button>
                 </div>
             </div>

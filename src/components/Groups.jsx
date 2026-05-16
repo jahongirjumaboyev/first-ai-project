@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { apiPost, apiGet } from '../api'
 import AddIcon from '@mui/icons-material/Add'
 import PeopleIcon from '@mui/icons-material/People'
 import SchoolIcon from '@mui/icons-material/School'
@@ -8,10 +9,6 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 import CloseIcon from '@mui/icons-material/Close'
 import SearchIcon from '@mui/icons-material/Search'
 
-const mockGroups = [
-    { id: 1, name: 'N26',  course: 'Backend', duration: '6 oy', time: '09:30', days: 'Du, Se, Chor, Pay, Ju', room: 'Autodesk', teacher: 'Mohirbek', students: 1,  active: true },
-    { id: 2, name: 'n105', course: 'Backend', duration: '6 oy', time: '16:00', days: 'Se, Pay, Shan',         room: 'Autodesk', teacher: 'Mohirbek', students: 4,  active: true },
-]
 
 const avatarStack = [
     { label: 'M', color: '#7E56D8' },
@@ -19,18 +16,40 @@ const avatarStack = [
     { label: 'S', color: '#16a34a' },
 ]
 
-const kunlar = ['Dushanba', 'Seshanba', 'Chorshanba', 'Payshanba', 'Juma', 'Shanba', 'Yakshanba']
 
-const availableTeachers = ['Mohirbek', 'Sardor Nazarov', 'Jasur Toshmatov', 'Nodira Yusupova', 'Malika Karimova']
-const availableStudents = ['Ali Valiyev', 'Salim Qodirov', 'Bobur Karimov', 'Qodir Salimov', 'Nodira Yusupova', 'Jasur Toshmatov', 'Malika Karimova', 'Sardor Nazarov']
 
-const initForm = { name: '', course: '', room: '', days: [], time: '09:00', startDate: '', description: '', teachers: [], students: [] }
+const kunlar  = ['Dushanba', 'Seshanba', 'Chorshanba', 'Payshanba', 'Juma', 'Shanba', 'Yakshanba']
+const dayMap  = { Dushanba: 'MONDAY', Seshanba: 'TUESDAY', Chorshanba: 'WEDNESDAY', Payshanba: 'THURSDAY', Juma: 'FRIDAY', Shanba: 'SATURDAY', Yakshanba: 'SUNDAY' }
+
+const initForm = { name: '', course: '', room: '', days: [], time: '09:00', startDate: '', description: '', teachers: [], students: [], maxStudent: '' }
 
 export default function Groups() {
-    const [groups, setGroups]         = useState(mockGroups)
+    const [groups, setGroups]         = useState([])
     const [activeTab, setActiveTab]   = useState('guruhlar')
     const [drawerOpen, setDrawerOpen] = useState(false)
     const [form, setForm]             = useState(initForm)
+    const [saving, setSaving]         = useState(false)
+    const [toast, setToast]           = useState(null)
+    const [rooms, setRooms]           = useState([])
+    const [courses, setCourses]       = useState([])
+    const [apiTeachers, setApiTeachers] = useState([])
+    const [apiStudents, setApiStudents] = useState([])
+
+    const loadGroups = () =>
+        apiGet('/groups/all').then(d => setGroups(Array.isArray(d) ? d : d?.data ?? [])).catch(() => {})
+
+    useEffect(() => {
+        loadGroups()
+        apiGet('/rooms').then(d => setRooms(Array.isArray(d) ? d : d?.data ?? [])).catch(() => {})
+        apiGet('/courses').then(d => setCourses(Array.isArray(d) ? d : d?.data ?? [])).catch(() => {})
+        apiGet('/teachers').then(d => setApiTeachers(Array.isArray(d) ? d : d?.data ?? [])).catch(() => {})
+        apiGet('/students?page=1&limit=100').then(d => setApiStudents(Array.isArray(d) ? d : d?.data ?? [])).catch(() => {})
+    }, [])
+
+    function showToast(message, type) {
+        setToast({ message, type })
+        setTimeout(() => setToast(null), 3000)
+    }
 
     /* Modal state: null | 'teacher' | 'student' */
     const [modalType, setModalType]   = useState(null)
@@ -56,40 +75,52 @@ export default function Groups() {
         setModalType(type)
     }
     const closeModal = () => setModalType(null)
-    const toggleTemp = (item) =>
-        setTempSelected(prev => prev.includes(item) ? prev.filter(x => x !== item) : [...prev, item])
+    const toggleTemp = (id) =>
+        setTempSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
     const applyModal = () => {
         if (modalType === 'teacher') upd('teachers', tempSelected)
         else upd('students', tempSelected)
         closeModal()
     }
-    const removeTag = (type, item) => {
+    const removeTag = (type, id) => {
         const key = type === 'teacher' ? 'teachers' : 'students'
-        upd(key, form[key].filter(x => x !== item))
+        upd(key, form[key].filter(x => x !== id))
+    }
+    const getPersonName = (type, id) => {
+        const list = type === 'teacher' ? apiTeachers : apiStudents
+        return list.find(p => p.id === id)?.full_name ?? id
     }
 
-    const modalList   = modalType === 'teacher' ? availableTeachers : availableStudents
-    const modalTitle  = modalType === 'teacher' ? "O'qituvchi qo'shish" : "Talaba qo'shish"
-    const modalSub    = modalType === 'teacher' ? "Bir yoki bir nechta o'qituvchini tanlang" : "Bitta yoki bir nechta talabani tanlang"
+    const modalPeople  = modalType === 'teacher' ? apiTeachers : apiStudents
+    const modalTitle   = modalType === 'teacher' ? "O'qituvchi qo'shish" : "Talaba qo'shish"
+    const modalSub     = modalType === 'teacher' ? "Bir yoki bir nechta o'qituvchini tanlang" : "Bitta yoki bir nechta talabani tanlang"
     const modalPlaceholder = modalType === 'teacher' ? "O'qituvchi qidirish..." : "Talaba qidirish..."
-    const filtered    = modalList.filter(x => x.toLowerCase().includes(modalSearch.toLowerCase()))
+    const filtered     = modalPeople.filter(x => (x.full_name ?? '').toLowerCase().includes(modalSearch.toLowerCase()))
 
-    const saveGroup = () => {
+    const saveGroup = async () => {
         if (!form.name) return
-        const dayAbbr = { Dushanba: 'Du', Seshanba: 'Se', Chorshanba: 'Chor', Payshanba: 'Pay', Juma: 'Ju', Shanba: 'Shan', Yakshanba: 'Yak' }
-        setGroups(prev => [...prev, {
-            id: Date.now(),
-            name: form.name,
-            course: form.course || '—',
-            duration: '6 oy',
-            time: form.time,
-            days: form.days.map(d => dayAbbr[d]).join(', '),
-            room: form.room || '—',
-            teacher: form.teachers[0] || '—',
-            students: form.students.length,
-            active: true,
-        }])
-        closeDrawer()
+        setSaving(true)
+        try {
+            await apiPost('/groups', {
+                name:        form.name,
+                description: form.description,
+                course_id:   Number(form.course),
+                teachers:    form.teachers,
+                students:    form.students,
+                room_id:     Number(form.room),
+                start_date:  form.startDate,
+                week_day:    form.days.map(d => dayMap[d]),
+                start_time:  form.time.length === 5 ? form.time + ':00' : form.time,
+                max_student: Number(form.maxStudent) || 0,
+            })
+            await loadGroups()
+            showToast("✅ Guruh muvaffaqiyatli qo'shildi!", 'success')
+            setTimeout(() => closeDrawer(), 1200)
+        } catch (err) {
+            showToast(`⚠️ ${err.message}`, 'error')
+        } finally {
+            setSaving(false)
+        }
     }
 
     const inputCls  = 'w-full border border-[#e8e8e8] dark:border-[#2d3748] rounded-[10px] px-3.5 py-2.5 text-sm bg-white dark:bg-[#0f1827] text-[#1a1a2e] dark:text-[#e2e8f0] outline-none focus:border-[#7E56D8] transition-colors duration-200'
@@ -107,12 +138,12 @@ export default function Groups() {
             <AddIcon sx={{ fontSize: 16 }} /> Qo'shish
         </button>
     )
-    const tagList = (type, items) => items.length > 0 && (
+    const tagList = (type, ids) => ids.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-2">
-            {items.map((item, i) => (
-                <span key={i} className="flex items-center gap-1 bg-[#ede8fb] dark:bg-[#2a1f4a] text-[#7E56D8] rounded-lg px-2.5 py-1 text-[13px] font-medium">
-                    {item}
-                    <button onClick={() => removeTag(type, item)} className="border-none bg-transparent cursor-pointer text-[#7E56D8] flex p-0 leading-none hover:text-[#e53935] transition-colors duration-150">
+            {ids.map((id) => (
+                <span key={id} className="flex items-center gap-1 bg-[#ede8fb] dark:bg-[#2a1f4a] text-[#7E56D8] rounded-lg px-2.5 py-1 text-[13px] font-medium">
+                    {getPersonName(type, id)}
+                    <button onClick={() => removeTag(type, id)} className="border-none bg-transparent cursor-pointer text-[#7E56D8] flex p-0 leading-none hover:text-[#e53935] transition-colors duration-150">
                         <CloseIcon sx={{ fontSize: 13 }} />
                     </button>
                 </span>
@@ -122,6 +153,11 @@ export default function Groups() {
 
     return (
         <div>
+            {toast && (
+                <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-9999 flex items-center gap-2.5 px-4 sm:px-7 py-3 sm:py-3.5 rounded-[10px] text-[13px] sm:text-[15px] font-semibold text-white w-[calc(100vw-32px)] sm:w-auto text-center justify-center shadow-[0_6px_24px_rgba(0,0,0,0.25)] ${toast.type === 'success' ? 'bg-[#1F2D5C]' : 'bg-[#c0392b]'}`}>
+                    {toast.message}
+                </div>
+            )}
             {/* Page header */}
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-5">
                 <h1 className="m-0 text-2xl font-bold text-[#1a1a2e] dark:text-[#e2e8f0]">Guruhlar</h1>
@@ -238,16 +274,16 @@ export default function Groups() {
                                     </td>
                                     <td className="px-4 py-3 font-semibold text-[#1a1a2e] dark:text-[#e2e8f0]">{g.name}</td>
                                     <td className="px-4 py-3">
-                                        <span className="text-[#7E56D8] bg-[#ede8fb] dark:bg-[#2a1f4a] px-2.5 py-0.5 rounded-md text-[12px] font-medium whitespace-nowrap">{g.course}</span>
+                                        <span className="text-[#7E56D8] bg-[#ede8fb] dark:bg-[#2a1f4a] px-2.5 py-0.5 rounded-md text-[12px] font-medium whitespace-nowrap">{g.course?.name ?? g.course ?? '—'}</span>
                                     </td>
-                                    <td className="px-4 py-3 text-[#6b7280] dark:text-[#94a3b8]">{g.duration}</td>
+                                    <td className="px-4 py-3 text-[#6b7280] dark:text-[#94a3b8]">{g.course?.duration_month ? `${g.course.duration_month} oy` : '—'}</td>
                                     <td className="px-4 py-3">
-                                        <div className="font-medium text-[#1a1a2e] dark:text-[#e2e8f0]">{g.time}</div>
-                                        <div className="text-[12px] text-[#6b7280] dark:text-[#94a3b8]">{g.days}</div>
+                                        <div className="font-medium text-[#1a1a2e] dark:text-[#e2e8f0]">{g.start_time ?? '—'}</div>
+                                        <div className="text-[12px] text-[#6b7280] dark:text-[#94a3b8]">{Array.isArray(g.week_day) ? g.week_day.join(', ') : (g.week_day ?? '—')}</div>
                                     </td>
-                                    <td className="px-4 py-3 text-[#6b7280] dark:text-[#94a3b8] whitespace-nowrap">{g.room}</td>
-                                    <td className="px-4 py-3 text-[#1a1a2e] dark:text-[#e2e8f0] whitespace-nowrap">{g.teacher}</td>
-                                    <td className="px-4 py-3 text-[#1a1a2e] dark:text-[#e2e8f0] font-medium">{g.students}</td>
+                                    <td className="px-4 py-3 text-[#6b7280] dark:text-[#94a3b8] whitespace-nowrap">{g.room?.name ?? g.room ?? '—'}</td>
+                                    <td className="px-4 py-3 text-[#1a1a2e] dark:text-[#e2e8f0] whitespace-nowrap">{Array.isArray(g.teachers) ? g.teachers.length : '—'}</td>
+                                    <td className="px-4 py-3 text-[#1a1a2e] dark:text-[#e2e8f0] font-medium">{Array.isArray(g.students) ? g.students.length : (g.max_student ?? '—')}</td>
                                     <td className="px-4 py-3">
                                         <button className="border-none bg-transparent cursor-pointer text-[#94a3b8] hover:text-[#555] dark:hover:text-[#e2e8f0] flex p-1 rounded transition-colors">
                                             <MoreVertIcon sx={{ fontSize: 18 }} />
@@ -293,25 +329,23 @@ export default function Groups() {
                     <div>
                         {labelEl('Kurs', true)}
                         <select value={form.course} onChange={e => upd('course', e.target.value)} className={selectCls}>
-                            <option value="" disabled hidden></option>
-                            <option value="Frontend">Frontend</option>
-                            <option value="Backend">Backend</option>
-                            <option value="Mobile">Mobile</option>
-                            <option value="UI/UX">UI/UX</option>
-                            <option value="Data Science">Data Science</option>
+                            <option value="" disabled hidden>Kurs tanlang</option>
+                            {courses.map(c => (
+                                <option key={c.id} value={c.id}>{c.name}</option>
+                            ))}
                         </select>
                     </div>
 
                     <div>
                         {labelEl('Xona', true)}
                         <select value={form.room} onChange={e => upd('room', e.target.value)} className={selectCls}>
-                            <option value="" disabled hidden></option>
-                            <option value="Autodesk">Autodesk</option>
-                            <option value="Google">Google</option>
-                            <option value="Amazon">Amazon</option>
-                            <option value="Microsoft">Microsoft</option>
+                            <option value="" disabled hidden>Xona tanlang</option>
+                            {rooms.map(r => (
+                                <option key={r.id} value={r.id}>{r.name}</option>
+                            ))}
                         </select>
                     </div>
+
 
                     <div>
                         {labelEl('Dars kunlari', true)}
@@ -340,6 +374,18 @@ export default function Groups() {
                         <textarea value={form.description} onChange={e => upd('description', e.target.value)} placeholder="Guruh haqida qo'shimcha ma'lumot (ixtiyoriy)" rows={3} className={`${inputCls} resize-none`} />
                     </div>
 
+                    <div>
+                        {labelEl('Max talabalar soni', false)}
+                        <input
+                            type="number"
+                            min="0"
+                            value={form.maxStudent}
+                            onChange={e => upd('maxStudent', e.target.value)}
+                            placeholder="30"
+                            className={inputCls}
+                        />
+                    </div>
+
                     {/* O'qituvchilar */}
                     <div>
                         {labelEl("O'qituvchilar", false)}
@@ -360,8 +406,12 @@ export default function Groups() {
                     <button onClick={closeDrawer} className="px-5.5 py-2.5 rounded-[10px] text-sm font-medium border border-[#e8e8e8] dark:border-[#2d3748] bg-transparent text-[#1a1a2e] dark:text-[#e2e8f0] cursor-pointer hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors duration-200">
                         Bekor qilish
                     </button>
-                    <button onClick={saveGroup} className="px-5.5 py-2.5 rounded-[10px] text-sm font-semibold border-none bg-[#7E56D8] hover:bg-[#6a44c0] text-white cursor-pointer transition-colors duration-200">
-                        Saqlash
+                    <button
+                        onClick={saveGroup}
+                        disabled={saving}
+                        className={`px-5.5 py-2.5 rounded-[10px] text-sm font-semibold border-none text-white transition-colors duration-200 ${saving ? 'bg-[#a78bda] cursor-not-allowed' : 'bg-[#7E56D8] hover:bg-[#6a44c0] cursor-pointer'}`}
+                    >
+                        {saving ? 'Saqlanmoqda...' : 'Saqlash'}
                     </button>
                 </div>
             </div>
@@ -399,14 +449,14 @@ export default function Groups() {
                                 {filtered.length === 0 ? (
                                     <p className="text-center text-[13px] text-[#6b7280] dark:text-[#94a3b8] py-4">Hech narsa topilmadi</p>
                                 ) : filtered.map(item => (
-                                    <label key={item} className="flex items-center gap-3 px-2 py-2.5 rounded-lg cursor-pointer hover:bg-[#f5f0ff] dark:hover:bg-[#2a1f4a] transition-colors duration-150">
+                                    <label key={item.id} className="flex items-center gap-3 px-2 py-2.5 rounded-lg cursor-pointer hover:bg-[#f5f0ff] dark:hover:bg-[#2a1f4a] transition-colors duration-150">
                                         <input
                                             type="checkbox"
-                                            checked={tempSelected.includes(item)}
-                                            onChange={() => toggleTemp(item)}
+                                            checked={tempSelected.includes(item.id)}
+                                            onChange={() => toggleTemp(item.id)}
                                             className="w-4 h-4 accent-[#7E56D8] cursor-pointer shrink-0"
                                         />
-                                        <span className="text-[13px] font-medium text-[#1a1a2e] dark:text-[#e2e8f0]">{item}</span>
+                                        <span className="text-[13px] font-medium text-[#1a1a2e] dark:text-[#e2e8f0]">{item.full_name}</span>
                                     </label>
                                 ))}
                             </div>

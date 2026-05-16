@@ -2,10 +2,11 @@ import Study from '../imgs/study.svg'
 import Logo from '../imgs/logo.png'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { apiPost } from '../api'
 
 export default function Login() {
     const navigate = useNavigate()
-    const [user, setUser]         = useState('')
+    const [phone, setPhone]       = useState('')
     const [password, setPassword] = useState('')
     const [showPass, setShowPass] = useState(false)
     const [loading, setLoading]   = useState(false)
@@ -13,18 +14,25 @@ export default function Login() {
 
     function showToast(message, type) {
         setToast({ message, type })
-        setTimeout(() => setToast(null), 2500)
+        setTimeout(() => setToast(null), 3000)
     }
 
-    function Auth(e) {
+    async function Auth(e) {
         e.preventDefault()
-        if (user && password) {
-            setLoading(true)
-            localStorage.setItem('token', 'fake-token-12345')
-            showToast("✅ Muvaffaqiyatli o'tdingiz!", 'success')
-            setTimeout(() => navigate('/dashboard'), 2000)
-        } else {
-            showToast('⚠️ Login yoki parol kiritilmagan!', 'error')
+        if (!phone || !password) {
+            showToast('⚠️ Telefon yoki parol kiritilmagan!', 'error')
+            return
+        }
+        setLoading(true)
+        try {
+            const data = await apiPost('/auth/login', { phone, password })
+            const token = data.accessToken || data.access_token || data.token
+            localStorage.setItem('token', token)
+            showToast("✅ Muvaffaqiyatli kirdingiz!", 'success')
+            setTimeout(() => navigate('/dashboard'), 1500)
+        } catch (err) {
+            setLoading(false)
+            showToast(`⚠️ ${err.message}`, 'error')
         }
     }
 
@@ -33,7 +41,7 @@ export default function Login() {
 
             {/* Toast */}
             {toast && (
-                <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2.5 px-4 sm:px-7 py-3 sm:py-3.5 rounded-[10px] text-[13px] sm:text-[15px] font-semibold text-white w-[calc(100vw-32px)] sm:w-auto text-center justify-center shadow-[0_6px_24px_rgba(0,0,0,0.25)] animate-slideDown ${toast.type === 'success' ? 'bg-[#1F2D5C]' : 'bg-[#c0392b]'}`}>
+                <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-9999 flex items-center gap-2.5 px-4 sm:px-7 py-3 sm:py-3.5 rounded-[10px] text-[13px] sm:text-[15px] font-semibold text-white w-[calc(100vw-32px)] sm:w-auto text-center justify-center shadow-[0_6px_24px_rgba(0,0,0,0.25)] animate-slideDown ${toast.type === 'success' ? 'bg-[#1F2D5C]' : 'bg-[#c0392b]'}`}>
                     {toast.message}
                     {toast.type === 'success' && (
                         <span className="text-[13px] opacity-80"> — 2 soniyada yo'naltirilmoqda...</span>
@@ -48,7 +56,7 @@ export default function Login() {
 
             {/* RIGHT — form */}
             <div className="flex-1 md:w-[45%] flex flex-col items-center justify-center gap-4.5 bg-white relative px-4 md:px-0">
-                <p className="w-full max-w-[240px] text-center text-xs font-medium text-[#333] leading-relaxed">
+                <p className="w-full max-w-60 text-center text-xs font-medium text-[#333] leading-relaxed">
                     MUHAMMAD AL-XORAZMIY NOMIDAGI TOSHKENT AXBOROT TEXNOLOGIYALARI UNIVERSITETI
                 </p>
 
@@ -63,9 +71,9 @@ export default function Login() {
                     <div className="flex flex-col gap-1">
                         <label className="text-[13px] text-[#444]">Login</label>
                         <input
-                            value={user}
-                            onChange={e => setUser(e.target.value)}
-                            type="text"
+                            value={phone}
+                            onChange={e => setPhone(e.target.value)}
+                            type="tel"
                             placeholder="Loginni kiriting"
                             className="px-3 py-2.5 border border-[#aaa] rounded-md text-sm outline-none transition-colors duration-200 focus:border-[#1F2D5C]"
                         />

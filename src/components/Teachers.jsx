@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { apiPost, apiGet } from '../api'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import SearchIcon from '@mui/icons-material/Search'
 import ShareIcon from '@mui/icons-material/Share'
@@ -13,39 +14,72 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import ArchiveIcon from '@mui/icons-material/Archive'
 import CloseIcon from '@mui/icons-material/Close'
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined'
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined'
-
-const mockTeachers = [
-    { id: 1,  name: 'Qwerty qwert',     labels: ['Label', 'Label', 'Label'], extra: 4, phone: '+998(33)4082808', birth: '24 Jan 2022', created: '24 Jan 2022' },
-    { id: 2,  name: 'Aliyev Jasur',     labels: ['Label'],                   extra: 0, phone: '+998(90)1234567', birth: '15 Mar 1990', created: '10 Jan 2023' },
-    { id: 3,  name: 'Karimova Nilufar', labels: ['Label', 'Label'],          extra: 0, phone: '+998(91)2345678', birth: '22 Jun 1988', created: '05 Feb 2023' },
-    { id: 4,  name: 'Toshmatov Sarvar', labels: ['Label'],                   extra: 0, phone: '+998(93)3456789', birth: '08 Nov 1995', created: '20 Mar 2023' },
-    { id: 5,  name: 'Yusupova Malika',  labels: ['Label'],                   extra: 0, phone: '+998(94)4567890', birth: '30 Jan 1992', created: '01 Apr 2023' },
-    { id: 6,  name: 'Nazarov Ibrohim',  labels: ['Label', 'Label'],          extra: 0, phone: '+998(99)5678901', birth: '12 Sep 1987', created: '15 Apr 2023' },
-    { id: 7,  name: 'Holiqova Zulfiya', labels: ['Label'],                   extra: 0, phone: '+998(97)6789012', birth: '25 Dec 1993', created: '28 Apr 2023' },
-    { id: 8,  name: 'Rahimov Bobur',    labels: ['Label', 'Label', 'Label'], extra: 1, phone: '+998(95)7890123', birth: '03 Jul 1991', created: '10 May 2023' },
-    { id: 9,  name: 'Mirzayev Doniyor', labels: ['Label', 'Label'],          extra: 0, phone: '+998(98)8901234', birth: '18 Feb 1989', created: '22 May 2023' },
-    { id: 10, name: 'Saidova Feruza',   labels: ['Label', 'Label', 'Label'], extra: 0, phone: '+998(33)9012345', birth: '07 Aug 1994', created: '05 Jun 2023' },
-]
 
 const PAGE_SIZE = 10
 
+function toTeacher(t) {
+    return {
+        id:      t.id,
+        name:    t.full_name ?? t.name ?? '—',
+        phone:   t.phone ?? '—',
+        labels:  [],
+        extra:   0,
+        birth:   t.birth_date ?? '—',
+        created: t.createdAt ? new Date(t.createdAt).toLocaleDateString('uz-UZ') : '—',
+    }
+}
+
 const initForm = {
-    phone: '+998', email: '', name: '', birth: '01.03.1990',
-    groups: ['dFDFASC', 'JDCCXH'], groupInput: '',
+    phone: '+998', email: '', name: '', address: '',
+    groups: [], groupInput: '',
     gender: '', showPassword: false, password: '', file: null,
 }
 
 export default function Teachers() {
-    const [selected, setSelected]     = useState([1, 2, 5])
+    const [teachers, setTeachers]     = useState([])
+    const [selected, setSelected]     = useState([])
     const [search, setSearch]         = useState('')
     const [page, setPage]             = useState(1)
     const [drawerOpen, setDrawerOpen] = useState(false)
     const [form, setForm]             = useState(initForm)
+    const [saving, setSaving]         = useState(false)
+    const [toast, setToast]           = useState(null)
     const fileRef = useRef(null)
 
-    const filtered    = mockTeachers.filter(t =>
+    const loadTeachers = () =>
+        apiGet('/teachers')
+            .then(d => setTeachers((Array.isArray(d) ? d : d?.data ?? []).map(toTeacher)))
+            .catch(() => {})
+
+    useEffect(() => { loadTeachers() }, [])
+
+    function showToast(message, type) {
+        setToast({ message, type })
+        setTimeout(() => setToast(null), 3000)
+    }
+
+    const saveTeacher = async () => {
+        setSaving(true)
+        try {
+            await apiPost('/teachers', {
+                full_name: form.name,
+                email:     form.email,
+                password:  form.password,
+                phone:     form.phone,
+                address:   form.address,
+            })
+            showToast("✅ O'qituvchi muvaffaqiyatli qo'shildi!", 'success')
+            await loadTeachers()
+            setTimeout(() => closeDrawer(), 1200)
+        } catch (err) {
+            showToast(`⚠️ ${err.message}`, 'error')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    const filtered    = teachers.filter(t =>
         t.name.toLowerCase().includes(search.toLowerCase()) || t.phone.includes(search)
     )
     const totalPages  = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
@@ -79,6 +113,12 @@ export default function Teachers() {
 
     return (
         <div>
+            {/* Toast */}
+            {toast && (
+                <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-9999 flex items-center gap-2.5 px-4 sm:px-7 py-3 sm:py-3.5 rounded-[10px] text-[13px] sm:text-[15px] font-semibold text-white w-[calc(100vw-32px)] sm:w-auto text-center justify-center shadow-[0_6px_24px_rgba(0,0,0,0.25)] ${toast.type === 'success' ? 'bg-[#1F2D5C]' : 'bg-[#c0392b]'}`}>
+                    {toast.message}
+                </div>
+            )}
             {/* Page header */}
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start mb-5">
                 <div>
@@ -277,11 +317,8 @@ export default function Teachers() {
                     </div>
 
                     <div>
-                        {labelEl("Tug'ilgan sanasi")}
-                        <div className="relative">
-                            <CalendarTodayIcon sx={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: '#94a3b8' }} />
-                            <input value={form.birth} onChange={e => upd('birth', e.target.value)} placeholder="dd.mm.yyyy" className={`${inputCls} pl-10`} />
-                        </div>
+                        {labelEl('Manzil')}
+                        <input value={form.address} onChange={e => upd('address', e.target.value)} placeholder="Shahar yoki viloyat" className={inputCls} />
                     </div>
 
                     <div>
@@ -379,12 +416,16 @@ export default function Teachers() {
                 <div className="px-6 py-4 border-t border-[#e8e8e8] dark:border-[#2d3748] flex justify-end gap-2.5 shrink-0">
                     <button
                         onClick={closeDrawer}
-                        className="px-[22px] py-2.5 rounded-[10px] text-sm font-medium border border-[#e8e8e8] dark:border-[#2d3748] bg-transparent text-[#1a1a2e] dark:text-[#e2e8f0] cursor-pointer hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors duration-200"
+                        className="px-5.5 py-2.5 rounded-[10px] text-sm font-medium border border-[#e8e8e8] dark:border-[#2d3748] bg-transparent text-[#1a1a2e] dark:text-[#e2e8f0] cursor-pointer hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors duration-200"
                     >
                         Bekor qilish
                     </button>
-                    <button className="px-[22px] py-2.5 rounded-[10px] text-sm font-semibold border-none bg-[#7E56D8] hover:bg-[#6a44c0] text-white cursor-pointer transition-colors duration-200">
-                        Saqlash
+                    <button
+                        onClick={saveTeacher}
+                        disabled={saving}
+                        className={`px-5.5 py-2.5 rounded-[10px] text-sm font-semibold border-none text-white transition-colors duration-200 ${saving ? 'bg-[#a78bda] cursor-not-allowed' : 'bg-[#7E56D8] hover:bg-[#6a44c0] cursor-pointer'}`}
+                    >
+                        {saving ? 'Saqlanmoqda...' : 'Saqlash'}
                     </button>
                 </div>
             </div>
