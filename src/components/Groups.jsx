@@ -21,7 +21,7 @@ const avatarStack = [
 const kunlar  = ['Dushanba', 'Seshanba', 'Chorshanba', 'Payshanba', 'Juma', 'Shanba', 'Yakshanba']
 const dayMap  = { Dushanba: 'MONDAY', Seshanba: 'TUESDAY', Chorshanba: 'WEDNESDAY', Payshanba: 'THURSDAY', Juma: 'FRIDAY', Shanba: 'SATURDAY', Yakshanba: 'SUNDAY' }
 
-const initForm = { name: '', course: '', room: '', days: [], time: '09:00', startDate: '', description: '', teachers: [], students: [], maxStudent: '' }
+const initForm = { name: '', course: '', room: '', days: [], time: '09:00', endTime: '11:00', startDate: '', description: '', teachers: [], students: [], maxStudent: '' }
 
 export default function Groups() {
     const [groups, setGroups]         = useState([])
@@ -48,7 +48,7 @@ export default function Groups() {
 
     function showToast(message, type) {
         setToast({ message, type })
-        setTimeout(() => setToast(null), 3000)
+        setTimeout(() => setToast(null), type === 'error' ? 5000 : 3000)
     }
 
     /* Modal state: null | 'teacher' | 'student' */
@@ -97,13 +97,40 @@ export default function Groups() {
     const modalPlaceholder = modalType === 'teacher' ? "O'qituvchi qidirish..." : "Talaba qidirish..."
     const filtered     = modalPeople.filter(x => (x.full_name ?? '').toLowerCase().includes(modalSearch.toLowerCase()))
 
+    /* Room conflict check against already-loaded groups */
+    const roomConflicts = (() => {
+        if (!form.room || form.days.length === 0) return []
+        const selectedRoom = rooms.find(r => String(r.id) === String(form.room))
+        if (!selectedRoom) return []
+        const selectedDays = form.days.map(d => dayMap[d])
+        const toMins = (t) => { const [h, m] = (t ?? '').split(':').map(Number); return (h || 0) * 60 + (m || 0) }
+        const startMins = toMins(form.time)
+        const endMins   = toMins(form.endTime) || startMins + 120
+
+        return groups.filter(g => {
+            const gRoomName = g.room?.name ?? (typeof g.room === 'string' ? g.room : '')
+            const gRoomId   = g.room?.id ?? g.room_id
+            const sameRoom  = gRoomName === selectedRoom.name || String(gRoomId) === String(form.room)
+            if (!sameRoom) return false
+            const gDays = Array.isArray(g.week_day) ? g.week_day : []
+            if (!gDays.some(d => selectedDays.includes(d))) return false
+            if (!g.start_time) return true
+            const gStart = toMins(g.start_time)
+            const gEnd   = g.end_time ? toMins(g.end_time) : gStart + 120
+            return startMins < gEnd && endMins > gStart
+        })
+    })()
+
     const saveGroup = async () => {
-        if (!form.name) return
+        if (!form.name || !form.course || !form.room || form.days.length === 0 || !form.startDate) {
+            showToast("⚠️ Guruh nomi, kurs, xona, kun va sana majburiy!", 'error')
+            return
+        }
         setSaving(true)
         try {
             await apiPost('/groups', {
                 name:        form.name,
-                description: form.description,
+                description: form.description || form.name,
                 course_id:   Number(form.course),
                 teachers:    form.teachers,
                 students:    form.students,
@@ -344,6 +371,17 @@ export default function Groups() {
                                 <option key={r.id} value={r.id}>{r.name}</option>
                             ))}
                         </select>
+                        {roomConflicts.length > 0 && (
+                            <div className="mt-2 bg-[#fff3f3] dark:bg-[#3a1f1f] border border-[#f44336] rounded-lg px-3 py-2.5 text-[12px] text-[#c0392b] dark:text-[#f87171]">
+                                <p className="m-0 font-semibold mb-1">⚠️ Bu xona quyidagi guruhlar bilan to'qnashadi:</p>
+                                {roomConflicts.map(g => (
+                                    <p key={g.id} className="m-0">
+                                        • {g.name} — {g.start_time ?? '?'}{g.end_time ? `–${g.end_time}` : ''} ({Array.isArray(g.week_day) ? g.week_day.join(', ') : '—'})
+                                    </p>
+                                ))}
+                                <p className="m-0 mt-1 font-medium">Boshqa xona yoki boshqa vaqt tanlang.</p>
+                            </div>
+                        )}
                     </div>
 
 
@@ -359,9 +397,15 @@ export default function Groups() {
                         </div>
                     </div>
 
-                    <div>
-                        {labelEl('Dars vaqti', true)}
-                        <input type="time" value={form.time} onChange={e => upd('time', e.target.value)} className={inputCls} />
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            {labelEl('Boshlanish vaqti', true)}
+                            <input type="time" value={form.time} onChange={e => upd('time', e.target.value)} className={inputCls} />
+                        </div>
+                        <div>
+                            {labelEl('Tugash vaqti', true)}
+                            <input type="time" value={form.endTime} onChange={e => upd('endTime', e.target.value)} className={inputCls} />
+                        </div>
                     </div>
 
                     <div>
@@ -408,10 +452,10 @@ export default function Groups() {
                     </button>
                     <button
                         onClick={saveGroup}
-                        disabled={saving}
-                        className={`px-5.5 py-2.5 rounded-[10px] text-sm font-semibold border-none text-white transition-colors duration-200 ${saving ? 'bg-[#a78bda] cursor-not-allowed' : 'bg-[#7E56D8] hover:bg-[#6a44c0] cursor-pointer'}`}
+                        disabled={saving || roomConflicts.length > 0}
+                        className={`px-5.5 py-2.5 rounded-[10px] text-sm font-semibold border-none text-white transition-colors duration-200 ${saving || roomConflicts.length > 0 ? 'bg-[#a78bda] cursor-not-allowed' : 'bg-[#7E56D8] hover:bg-[#6a44c0] cursor-pointer'}`}
                     >
-                        {saving ? 'Saqlanmoqda...' : 'Saqlash'}
+                        {saving ? 'Saqlanmoqda...' : roomConflicts.length > 0 ? 'Xona band' : 'Saqlash'}
                     </button>
                 </div>
             </div>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { apiPost, apiGet } from '../api'
+import { apiGet, apiPost } from '../api'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import SearchIcon from '@mui/icons-material/Search'
 import AddIcon from '@mui/icons-material/Add'
@@ -114,24 +114,21 @@ export default function Students() {
     }
 
     const saveStudent = async () => {
+        if (!form.name || !form.phone || !form.email || !form.password) {
+            showToast("⚠️ Ism, telefon, email va parol majburiy!", 'error')
+            return
+        }
         setSaving(true)
         try {
-            const data = await apiPost('/students', {
+            await apiPost('/students', {
                 full_name:  form.name,
                 email:      form.email,
                 password:   form.password,
                 phone:      form.phone,
                 address:    form.address,
                 birth_date: form.birth,
+                groups:     form.groups,
             })
-            const studentId = data?.id ?? data?.data?.id
-            if (studentId && form.groups.length > 0) {
-                await Promise.allSettled(
-                    form.groups.map(groupId =>
-                        apiPost('/student-group', { student_id: studentId, group_id: groupId })
-                    )
-                )
-            }
             await loadStudents()
             showToast("✅ Talaba muvaffaqiyatli qo'shildi!", 'success')
             setTimeout(() => closeDrawer(), 1200)

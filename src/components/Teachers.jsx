@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { apiPost, apiGet } from '../api'
+import { apiGet, apiPost } from '../api'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import SearchIcon from '@mui/icons-material/Search'
 import ShareIcon from '@mui/icons-material/Share'
@@ -60,6 +60,10 @@ export default function Teachers() {
     }
 
     const saveTeacher = async () => {
+        if (!form.name || !form.phone || !form.email || !form.password) {
+            showToast("⚠️ Ism, telefon, email va parol majburiy!", 'error')
+            return
+        }
         setSaving(true)
         try {
             await apiPost('/teachers', {
