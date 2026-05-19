@@ -22,7 +22,7 @@ const avatarStack = [
 const kunlar  = ['Dushanba', 'Seshanba', 'Chorshanba', 'Payshanba', 'Juma', 'Shanba', 'Yakshanba']
 const dayMap  = { Dushanba: 'MONDAY', Seshanba: 'TUESDAY', Chorshanba: 'WEDNESDAY', Payshanba: 'THURSDAY', Juma: 'FRIDAY', Shanba: 'SATURDAY', Yakshanba: 'SUNDAY' }
 
-const initForm = { name: '', course: '', room: '', days: [], time: '09:00', startDate: '', endDate: '', description: '', teachers: [], students: [], maxStudent: '' }
+const initForm = { name: '', course: '', room: '', days: [], time: '09:00', endTime: '11:00', startDate: '', endDate: '', description: '', teachers: [], students: [], maxStudent: '' }
 
 export default function Groups() {
     const navigate = useNavigate()
@@ -100,16 +100,11 @@ export default function Groups() {
     const filtered     = modalPeople.filter(x => (x.full_name ?? '').toLowerCase().includes(modalSearch.toLowerCase()))
 
     const toMins = (t) => { const [h, m] = (t ?? '').split(':').map(Number); return (h || 0) * 60 + (m || 0) }
-    const minsToTime = (m) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`
 
-    /* Compute actual end time from course duration (backend ignores any end_time we send) */
-    const selectedCourse = courses.find(c => String(c.id) === String(form.course))
-    const courseDurationMins = selectedCourse?.duration_hours ? Math.round(selectedCourse.duration_hours * 60) : 120
     const newStartMins = toMins(form.time)
-    const newEndMins   = newStartMins + courseDurationMins
-    const computedEndTime = form.time ? minsToTime(newEndMins) : ''
+    const newEndMins   = toMins(form.endTime) || newStartMins + 120
 
-    /* Room conflict check using course duration as the real end time */
+    /* Room conflict check */
     const roomConflicts = (() => {
         if (!form.room || form.days.length === 0) return []
         const selectedRoom = rooms.find(r => String(r.id) === String(form.room))
@@ -407,6 +402,7 @@ export default function Groups() {
                                         const gStart = toMins(g.start_time)
                                         const gEnd = g.end_time ? toMins(g.end_time) : gStart + 120
                                         const timeOverlap = dayOverlap && g.start_time && newStartMins < gEnd && newEndMins > gStart
+
                                         return (
                                             <div key={g.id} className={`flex items-center gap-2 py-1 ${timeOverlap ? 'text-[#c0392b] dark:text-[#f87171]' : 'text-[#6b7280] dark:text-[#94a3b8]'}`}>
                                                 <span className={`w-2 h-2 rounded-full shrink-0 ${timeOverlap ? 'bg-[#e53935]' : 'bg-[#16a34a]'}`} />
@@ -452,15 +448,8 @@ export default function Groups() {
                             <input type="time" value={form.time} onChange={e => upd('time', e.target.value)} className={inputCls} />
                         </div>
                         <div>
-                            {labelEl('Tugash vaqti', false)}
-                            <div className={`${inputCls} bg-[#f5f5f5] dark:bg-[#162032] text-[#6b7280] dark:text-[#94a3b8] cursor-default`}>
-                                {computedEndTime || '—'}
-                            </div>
-                            {selectedCourse?.duration_hours && (
-                                <p className="m-0 mt-1 text-[11px] text-[#94a3b8]">
-                                    Kurs davomiyligi: {selectedCourse.duration_hours} soat
-                                </p>
-                            )}
+                            {labelEl('Tugash vaqti', true)}
+                            <input type="time" value={form.endTime} onChange={e => upd('endTime', e.target.value)} className={inputCls} />
                         </div>
                     </div>
 
