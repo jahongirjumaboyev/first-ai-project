@@ -99,24 +99,26 @@ export default function Groups() {
     const modalPlaceholder = modalType === 'teacher' ? "O'qituvchi qidirish..." : "Talaba qidirish..."
     const filtered     = modalPeople.filter(x => (x.full_name ?? '').toLowerCase().includes(modalSearch.toLowerCase()))
 
+    const toMins = (t) => { const [h, m] = (t ?? '').split(':').map(Number); return (h || 0) * 60 + (m || 0) }
+
     /* Room conflict check against already-loaded groups */
     const roomConflicts = (() => {
         if (!form.room || form.days.length === 0) return []
         const selectedRoom = rooms.find(r => String(r.id) === String(form.room))
         if (!selectedRoom) return []
         const selectedDays = form.days.map(d => dayMap[d])
-        const toMins = (t) => { const [h, m] = (t ?? '').split(':').map(Number); return (h || 0) * 60 + (m || 0) }
         const startMins = toMins(form.time)
         const endMins   = toMins(form.endTime) || startMins + 120
 
         return groups.filter(g => {
-            const gRoomName = g.room?.name ?? (typeof g.room === 'string' ? g.room : '')
-            const gRoomId   = g.room?.id ?? g.room_id
-            const sameRoom  = gRoomName === selectedRoom.name || String(gRoomId) === String(form.room)
+            // Support all formats: g.room as object, plain ID number, or string
+            const gRoomId   = g.room?.id ?? g.room_id ?? g.room
+            const gRoomName = g.room?.name ?? ''
+            const sameRoom  = String(gRoomId) === String(form.room) || gRoomName === selectedRoom.name
             if (!sameRoom) return false
             const gDays = Array.isArray(g.week_day) ? g.week_day : []
             if (!gDays.some(d => selectedDays.includes(d))) return false
-            if (!g.start_time) return true
+            if (!g.start_time) return false
             const gStart = toMins(g.start_time)
             const gEnd   = g.end_time ? toMins(g.end_time) : gStart + 120
             return startMins < gEnd && endMins > gStart
@@ -379,15 +381,52 @@ export default function Groups() {
                                 <option key={r.id} value={r.id}>{r.name}</option>
                             ))}
                         </select>
+
+                        {/* Show existing bookings for selected room */}
+                        {form.room && (() => {
+                            const roomBookings = groups.filter(g => {
+                                const gRoomId = g.room?.id ?? g.room_id ?? g.room
+                                const gRoomName = g.room?.name ?? ''
+                                const selectedRoom = rooms.find(r => String(r.id) === String(form.room))
+                                return String(gRoomId) === String(form.room) || gRoomName === selectedRoom?.name
+                            })
+                            if (roomBookings.length === 0) return null
+                            return (
+                                <div className="mt-2 bg-[#f9f8ff] dark:bg-[#1a1f30] border border-[#e0d9f7] dark:border-[#2d3748] rounded-lg px-3 py-2.5 text-[12px]">
+                                    <p className="m-0 font-semibold mb-1.5 text-[#7E56D8]">Bu xonadagi mavjud dars jadval:</p>
+                                    {roomBookings.map(g => {
+                                        const days = Array.isArray(g.week_day) ? g.week_day.join(', ') : '—'
+                                        const time = g.start_time ? `${g.start_time.slice(0,5)}${g.end_time ? `–${g.end_time.slice(0,5)}` : ''}` : '—'
+                                        const selectedDays = form.days.map(d => dayMap[d])
+                                        const gDays = Array.isArray(g.week_day) ? g.week_day : []
+                                        const dayOverlap = gDays.some(d => selectedDays.includes(d))
+                                        const gStart = toMins(g.start_time)
+                                        const gEnd = g.end_time ? toMins(g.end_time) : gStart + 120
+                                        const newStart = toMins(form.time)
+                                        const newEnd = toMins(form.endTime) || newStart + 120
+                                        const timeOverlap = dayOverlap && g.start_time && newStart < gEnd && newEnd > gStart
+                                        return (
+                                            <div key={g.id} className={`flex items-center gap-2 py-1 ${timeOverlap ? 'text-[#c0392b] dark:text-[#f87171]' : 'text-[#6b7280] dark:text-[#94a3b8]'}`}>
+                                                <span className={`w-2 h-2 rounded-full shrink-0 ${timeOverlap ? 'bg-[#e53935]' : 'bg-[#16a34a]'}`} />
+                                                <span className="font-medium">{g.name}</span>
+                                                <span className="ml-auto">{time}</span>
+                                                <span className="text-[11px] opacity-70">{days}</span>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            )
+                        })()}
+
                         {roomConflicts.length > 0 && (
                             <div className="mt-2 bg-[#fff3f3] dark:bg-[#3a1f1f] border border-[#f44336] rounded-lg px-3 py-2.5 text-[12px] text-[#c0392b] dark:text-[#f87171]">
-                                <p className="m-0 font-semibold mb-1">⚠️ Bu xona quyidagi guruhlar bilan to'qnashadi:</p>
+                                <p className="m-0 font-semibold mb-1">⚠️ Vaqt to'qnashuvi bor — quyidagi guruhlar bilan ustma-ust tushadi:</p>
                                 {roomConflicts.map(g => (
                                     <p key={g.id} className="m-0">
-                                        • {g.name} — {g.start_time ?? '?'}{g.end_time ? `–${g.end_time}` : ''} ({Array.isArray(g.week_day) ? g.week_day.join(', ') : '—'})
+                                        • {g.name} — {g.start_time?.slice(0,5) ?? '?'}–{g.end_time?.slice(0,5) ?? '?'} ({Array.isArray(g.week_day) ? g.week_day.join(', ') : '—'})
                                     </p>
                                 ))}
-                                <p className="m-0 mt-1 font-medium">Boshqa xona yoki boshqa vaqt tanlang.</p>
+                                <p className="m-0 mt-1 font-medium">Boshqa vaqt yoki boshqa xona tanlang.</p>
                             </div>
                         )}
                     </div>
