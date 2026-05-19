@@ -25,7 +25,7 @@ function toStudent(s) {
         name:    s.full_name ?? s.name ?? '—',
         email:   s.email ?? '—',
         phone:   s.phone ?? '—',
-        birth:   s.birth_date ?? '—',
+        birth:   s.birth_date ? new Date(s.birth_date).toLocaleDateString('uz-UZ') : '—',
         address: s.address ?? '—',
         groups:  Array.isArray(s.groups) ? s.groups.map(g => g?.name ?? g) : [],
         created: s.createdAt ? new Date(s.createdAt).toLocaleDateString('uz-UZ') : '—',

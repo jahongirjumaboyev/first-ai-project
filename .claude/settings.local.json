@@ -19,7 +19,21 @@
       "Bash(Select-Object FullName, PSIsContainer)",
       "Bash(Format-Table -AutoSize)",
       "WebFetch(domain:najot-edu.softwareengineer.uz)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(node *)",
+      "Bash(curl -s \"https://najot-edu.softwareengineer.uz/swagger-json\")",
+      "Bash(curl -s -i -X OPTIONS \"https://najot-edu.softwareengineer.uz/api/v1/teachers\" -H \"Origin: http://localhost:5173\" -H \"Access-Control-Request-Method: POST\" -H \"Access-Control-Request-Headers: authorization,content-type\")",
+      "Bash(curl -s -i -X OPTIONS \"https://najot-edu.softwareengineer.uz/api/v1/groups\" -H \"Origin: http://localhost:5173\" -H \"Access-Control-Request-Method: POST\" -H \"Access-Control-Request-Headers: authorization,content-type\")",
+      "Bash(curl -s -i -X POST \"https://najot-edu.softwareengineer.uz/api/v1/teachers\" -F \"full_name=test\" -F \"phone=test\" -F \"email=test\" -F \"password=test\" -F \"address=test\")",
+      "Bash(curl -s -i -X POST \"https://najot-edu.softwareengineer.uz/api/v1/teachers\" -H \"Content-Type: application/json\" -d '{\"full_name\":\"test\"}')",
+      "Bash(curl -v -X POST https://najot-edu.softwareengineer.uz/api/v1/teachers -H 'Authorization: Bearer fake_token' -F 'full_name=Test User' -F email=test@test.com -F password=123456 -F phone=+998901234567 -F address=Tashkent)",
+      "Bash(curl -v -X POST https://najot-edu.softwareengineer.uz/api/v1/teachers -H 'Authorization: Bearer fake_token' -H 'Content-Type: application/json' -d '{\"full_name\":\"Test\",\"email\":\"t@t.com\",\"password\":\"123456\",\"phone\":\"+998901234567\",\"address\":\"Tashkent\"}')",
+      "Bash(curl -v -X POST https://najot-edu.softwareengineer.uz/api/v1/students -H 'Authorization: Bearer fake_token' -F 'full_name=Test Student' -F email=s@s.com -F password=123456 -F phone=+998901234567 -F address=Tashkent -F birth_date=2000-01-01)",
+      "Bash(curl -v -X POST https://najot-edu.softwareengineer.uz/api/v1/students -H 'Authorization: Bearer fake_token' -H 'Content-Type: application/json' -d '{\"full_name\":\"Test\",\"email\":\"s@s.com\",\"password\":\"123456\",\"phone\":\"+998901234567\",\"address\":\"Tashkent\",\"birth_date\":\"2000-01-01\"}')",
+      "Bash(git -C \"D:\\\\Google Inshaallah\\\\7-oy\\\\2-dars\" add src/components/Groups.jsx)",
+      "Bash(git -C \"D:\\\\Google Inshaallah\\\\7-oy\\\\2-dars\" commit -m \"Fix room conflict detection: handle plain room ID format, show room schedule in drawer\")",
+      "Bash(git -C \"D:\\\\Google Inshaallah\\\\7-oy\\\\2-dars\" push origin main)",
+      "Bash(git -C \"D:\\\\Google Inshaallah\\\\7-oy\\\\2-dars\" commit -m \"Fix 409: use course duration_hours for end time, not user input \\(backend ignores end_time\\)\")"
     ]
   }
 }
