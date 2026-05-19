@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { apiPost, apiGet } from '../api'
 import AddIcon from '@mui/icons-material/Add'
 import PeopleIcon from '@mui/icons-material/People'
@@ -21,9 +22,10 @@ const avatarStack = [
 const kunlar  = ['Dushanba', 'Seshanba', 'Chorshanba', 'Payshanba', 'Juma', 'Shanba', 'Yakshanba']
 const dayMap  = { Dushanba: 'MONDAY', Seshanba: 'TUESDAY', Chorshanba: 'WEDNESDAY', Payshanba: 'THURSDAY', Juma: 'FRIDAY', Shanba: 'SATURDAY', Yakshanba: 'SUNDAY' }
 
-const initForm = { name: '', course: '', room: '', days: [], time: '09:00', endTime: '11:00', startDate: '', description: '', teachers: [], students: [], maxStudent: '' }
+const initForm = { name: '', course: '', room: '', days: [], time: '09:00', endTime: '11:00', startDate: '', endDate: '', description: '', teachers: [], students: [], maxStudent: '' }
 
 export default function Groups() {
+    const navigate = useNavigate()
     const [groups, setGroups]         = useState([])
     const [activeTab, setActiveTab]   = useState('guruhlar')
     const [drawerOpen, setDrawerOpen] = useState(false)
@@ -136,8 +138,10 @@ export default function Groups() {
                 students:    form.students,
                 room_id:     Number(form.room),
                 start_date:  form.startDate,
+                end_date:    form.endDate || undefined,
                 week_day:    form.days.map(d => dayMap[d]),
                 start_time:  form.time.length === 5 ? form.time + ':00' : form.time,
+                end_time:    form.endTime.length === 5 ? form.endTime + ':00' : form.endTime,
                 max_student: Number(form.maxStudent) || 0,
             })
             await loadGroups()
@@ -299,7 +303,11 @@ export default function Groups() {
                                             </span>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3 font-semibold text-[#1a1a2e] dark:text-[#e2e8f0]">{g.name}</td>
+                                    <td className="px-4 py-3 font-semibold text-[#1a1a2e] dark:text-[#e2e8f0]">
+                                        <button onClick={() => navigate(`/dashboard/guruhlar/${g.id}`, { state: { group: g } })} className="border-none bg-transparent cursor-pointer p-0 font-semibold text-[#1a1a2e] dark:text-[#e2e8f0] hover:text-[#7E56D8] dark:hover:text-[#7E56D8] transition-colors duration-150 text-[13px]">
+                                            {g.name}
+                                        </button>
+                                    </td>
                                     <td className="px-4 py-3">
                                         <span className="text-[#7E56D8] bg-[#ede8fb] dark:bg-[#2a1f4a] px-2.5 py-0.5 rounded-md text-[12px] font-medium whitespace-nowrap">{g.course?.name ?? g.course ?? '—'}</span>
                                     </td>
@@ -411,6 +419,11 @@ export default function Groups() {
                     <div>
                         {labelEl('Boshlanish sanasi', true)}
                         <input type="date" value={form.startDate} onChange={e => upd('startDate', e.target.value)} className={inputCls} />
+                    </div>
+
+                    <div>
+                        {labelEl('Tugash sanasi', false)}
+                        <input type="date" value={form.endDate} onChange={e => upd('endDate', e.target.value)} className={inputCls} />
                     </div>
 
                     <div>
