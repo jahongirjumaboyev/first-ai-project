@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { apiGet } from '../api'
+import { apiGet, apiPost } from '../api'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import CloseIcon from '@mui/icons-material/Close'
@@ -38,19 +38,22 @@ export default function GroupDetail() {
     const [loading, setLoading]           = useState(true)
     const [tab, setTab]                   = useState(0)
     const [mentorsOpen, setMentorsOpen]   = useState(true)
+    // refs and state for active tab indicator
+    const tabsRef = useRef([])
+    const [indicator, setIndicator] = useState({ left: 0, width: 0 })
     const [paramsOpen, setParamsOpen]     = useState(true)
-    const [monthIdx, setMonthIdx]         = useState(1)
-    const [showAll, setShowAll]             = useState(false)
+    const [showAll, setShowAll]           = useState(false)
     const [showAllMonths, setShowAllMonths] = useState(false)
-    const [subTab, setSubTab]               = useState(0)
-    const [homeworks, setHomeworks]         = useState([])
+    const [subTab, setSubTab]             = useState(0)
+    const [homeworks, setHomeworks]       = useState([])
+    const [selectedDate, setSelectedDate]  = useState(null)
 
     useEffect(() => {
         let cancelled = false
         Promise.all([
             apiGet(`/groups/${id}`),
             apiGet(`/groups/${id}/schedules`),
-            apiGet(`/groups/${id}/homeworks`).catch(() => []),
+            apiGet(`/homework/own/${id}`).catch(() => []),
         ]).then(([statsRes, schedRes, hwRes]) => {
             if (cancelled) return
             setStats(statsRes?.data ?? statsRes)
@@ -60,6 +63,19 @@ export default function GroupDetail() {
         }).catch(() => {}).finally(() => { if (!cancelled) setLoading(false) })
         return () => { cancelled = true }
     }, [id])
+
+    // position active tab indicator
+    useLayoutEffect(() => {
+        function update() {
+            const el = tabsRef.current[tab]
+            if (el) {
+                setIndicator({ left: el.offsetLeft, width: el.offsetWidth })
+            }
+        }
+        update()
+        window.addEventListener('resize', update)
+        return () => window.removeEventListener('resize', update)
+    }, [tab, schedules])
 
     const name      = basicGroup?.name ?? `Guruh #${id}`
     const isActive  = basicGroup?.active !== false
@@ -79,7 +95,6 @@ export default function GroupDetail() {
     /* Month keys from schedules e.g. ["1","2","3"] */
     const monthKeys  = schedules ? Object.keys(schedules).sort((a, b) => Number(a) - Number(b)) : []
     const totalMonths = monthKeys.length || duration || 1
-    const currentKey  = String(monthIdx)
 
     /* Determine past vs future for calendar */
     const today = new Date()
@@ -132,13 +147,23 @@ export default function GroupDetail() {
                 </button>
             </div>
 
-            {/* Tabs */}
-            <div className="flex border-b border-[#e8e8e8] dark:border-[#2d3748] mb-5">
-                {TABS.map((t, i) => (
-                    <button key={t} onClick={() => setTab(i)}
-                        className={`px-4 py-3 text-sm font-medium border-none bg-transparent cursor-pointer transition-colors duration-200 border-b-2 -mb-px whitespace-nowrap ${tab === i ? 'text-[#7E56D8] border-[#7E56D8]' : 'text-[#6b7280] dark:text-[#94a3b8] border-transparent hover:text-[#1a1a2e] dark:hover:text-[#e2e8f0]'}`}
-                    >{t}</button>
-                ))}
+            {/* Tabs with active indicator */}
+            <div className="relative mb-5">
+                <div className="flex border-b border-[#e8e8e8] dark:border-[#2d3748]">
+                    {TABS.map((t, i) => (
+                        <button
+                            key={t}
+                            ref={el => tabsRef.current[i] = el}
+                            onClick={() => setTab(i)}
+                            className={`px-4 py-3 text-sm font-medium border-none bg-transparent cursor-pointer transition-colors duration-200 whitespace-nowrap ${tab === i ? 'text-[#7E56D8]' : 'text-[#6b7280] dark:text-[#94a3b8] hover:text-[#1a1a2e] dark:hover:text-[#e2e8f0]'}`}
+                        >{t}</button>
+                    ))}
+                </div>
+                <div
+                    aria-hidden
+                    className="absolute -mb-1 left-0 h-1 bg-[#7E56D8] rounded-full transition-all duration-200"
+                    style={{ transform: `translateX(${indicator.left}px)`, width: indicator.width }}
+                />
             </div>
 
             {tab === 0 && (
@@ -234,12 +259,18 @@ export default function GroupDetail() {
                                     ) : visibleTeachers.map((t, i) => {
                                         const tName = t.full_name ?? t.name ?? `Teacher ${i + 1}`
                                         return (
-                                            <div key={t.id ?? i} className="flex flex-wrap sm:flex-nowrap items-center gap-3 px-5 py-3.5 text-[13px]">
-                                                <span className="text-[#4a90d9] font-semibold min-w-36 cursor-pointer hover:underline">{tName}</span>
-                                                <span className="text-[#6b7280] dark:text-[#94a3b8] min-w-28">{daysLabel || '—'}</span>
-                                                <span className="text-[#1a1a2e] dark:text-[#e2e8f0] min-w-40">{timeLabel}</span>
-                                                <span className="text-[#6b7280] dark:text-[#94a3b8] min-w-48">{dateRange}</span>
-                                                <span className="text-[#6b7280] dark:text-[#94a3b8]">{roomName}</span>
+                                            <div key={t.id ?? i} className="px-5 py-4">
+                                                <div className="bg-white dark:bg-[#12202a] rounded-lg shadow-sm p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-[#3b82f6] font-semibold cursor-pointer hover:underline text-[14px]">{tName}</span>
+                                                    </div>
+                                                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-[13px] text-[#6b7280] dark:text-[#94a3b8]">
+                                                        <span className="whitespace-nowrap">{daysLabel || '—'}</span>
+                                                        <span className="font-medium text-[#1a1a2e] dark:text-[#e2e8f0] whitespace-nowrap">{timeLabel}</span>
+                                                        <span className="whitespace-nowrap">{dateRange}</span>
+                                                        <span className="whitespace-nowrap">{roomName}</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         )
                                     })}
@@ -257,64 +288,60 @@ export default function GroupDetail() {
                                     </div>
                                 )}
 
-                                {/* Month navigation */}
+                                {/* Calendar — all months */}
                                 <div className="px-5 py-4 border-t border-[#e8e8e8] dark:border-[#2d3748]">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <button
-                                            onClick={() => setMonthIdx(m => Math.max(1, m - 1))}
-                                            disabled={monthIdx <= 1}
-                                            className="w-7 h-7 flex items-center justify-center rounded-full border border-[#e8e8e8] dark:border-[#2d3748] bg-transparent cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors text-[#1a1a2e] dark:text-[#e2e8f0]"
-                                        >
-                                            <ChevronLeftIcon sx={{ fontSize: 16 }} />
-                                        </button>
-                                        <span className="text-[13px] font-semibold text-[#1a1a2e] dark:text-[#e2e8f0]">
-                                            {monthIdx}-o'quv oyi
-                                        </span>
-                                        <button
-                                            onClick={() => setMonthIdx(m => Math.min(totalMonths, m + 1))}
-                                            disabled={monthIdx >= totalMonths}
-                                            className="w-7 h-7 flex items-center justify-center rounded-full border border-[#e8e8e8] dark:border-[#2d3748] bg-transparent cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors text-[#1a1a2e] dark:text-[#e2e8f0]"
-                                        >
-                                            <ChevronRightIcon sx={{ fontSize: 16 }} />
-                                        </button>
-                                    </div>
-
-                                    {/* Calendar days */}
-                                    {(showAllMonths ? monthKeys : [currentKey]).some(k => (schedules?.[k]?.days ?? []).length > 0) ? (
-                                        <>
-                                            {(showAllMonths ? monthKeys : [currentKey]).map(k => {
+                                    {monthKeys.some(k => (schedules?.[k]?.days ?? []).length > 0) ? (
+                                        <div className="flex flex-col gap-6">
+                                            {(showAllMonths ? monthKeys : monthKeys.slice(0, 2)).map(k => {
                                                 const mDays = schedules?.[k]?.days ?? []
                                                 if (!mDays.length) return null
                                                 return (
-                                                    <div key={k} className={showAllMonths ? 'mb-5' : ''}>
-                                                        {showAllMonths && (
-                                                            <p className="m-0 mb-2 text-[13px] font-semibold text-[#6b7280] dark:text-[#94a3b8]">{k}-o'quv oyi</p>
-                                                        )}
+                                                    <div key={k}>
+                                                        <p className="m-0 mb-3 text-[13px] font-semibold text-[#1a1a2e] dark:text-[#e2e8f0]">{k}-o'quv oyi</p>
                                                         <div className="flex flex-wrap gap-2">
                                                             {mDays.map((d, i) => {
                                                                 const past = d.isCompleted || isPast(d)
+                                                                const isSelected = selectedDate && selectedDate.day === d.day && selectedDate.month === d.month
                                                                 return (
-                                                                    <div key={i} className={`flex flex-col items-center justify-center w-11 h-13 rounded-xl border text-[12px] font-medium transition-colors ${past ? 'bg-[#dde1e8] dark:bg-[#374151] border-[#c8cdd6] dark:border-[#4a5568] text-[#6b7280] dark:text-[#9ca3af]' : 'bg-white dark:bg-[#1e2a3a] border-[#e8e8e8] dark:border-[#2d3748] text-[#1a1a2e] dark:text-[#e2e8f0] shadow-sm'}`}>
-                                                                        <span className="text-[11px] text-[#6b7280] dark:text-[#94a3b8]">{monthUz[d.month] ?? d.month}</span>
+                                                                    <button
+                                                                        key={i}
+                                                                        onClick={() => setSelectedDate(d)}
+                                                                        className={`flex flex-col items-center justify-center w-14 h-14 rounded-lg border transition-all cursor-pointer ${past ? 'bg-[#dfe4ef] dark:bg-[#4a5568] border-[#c5cfe0] dark:border-[#5a6b7c] text-[#5b6b8c] dark:text-[#a0afc4]' : (isSelected ? 'bg-[#5b7cfa] dark:bg-[#3b5bda] border-[#4a63d9] dark:border-[#2a4bc9] text-white' : 'bg-white dark:bg-[#0f1724] border-[#d1d5db] dark:border-[#374151] text-[#1a1a2e] dark:text-[#e2e8f0] hover:border-[#9ca3af] dark:hover:border-[#4b5563]')}`}
+                                                                    >
+                                                                        <span className="text-[10px] font-medium">{monthUz[d.month] ?? d.month}</span>
                                                                         <span className="font-bold text-[14px]">{d.day}</span>
-                                                                    </div>
+                                                                    </button>
                                                                 )
                                                             })}
                                                         </div>
                                                     </div>
                                                 )
                                             })}
-                                            <div className="mt-4 flex justify-center">
-                                                <button
-                                                    onClick={() => setShowAllMonths(s => !s)}
-                                                    className="border border-[#e8e8e8] dark:border-[#2d3748] bg-transparent text-[#1a1a2e] dark:text-[#e2e8f0] rounded-lg px-6 py-2 text-[13px] cursor-pointer hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors"
-                                                >
-                                                    {showAllMonths ? "Yig'ish" : "Barchasini ko'rish"}
-                                                </button>
-                                            </div>
-                                        </>
+
+                                            {!showAllMonths && monthKeys.length > 2 && (
+                                                <div className="flex justify-center pt-2">
+                                                    <button
+                                                        onClick={() => setShowAllMonths(true)}
+                                                        className="text-[13px] font-medium text-[#4a90d9] hover:text-[#2563eb] bg-transparent border-none cursor-pointer"
+                                                    >
+                                                        Barchasini ko'rish
+                                                    </button>
+                                                </div>
+                                            )}
+
+                                            {showAllMonths && monthKeys.length > 2 && (
+                                                <div className="flex justify-center pt-2">
+                                                    <button
+                                                        onClick={() => setShowAllMonths(false)}
+                                                        className="text-[13px] font-medium text-[#4a90d9] hover:text-[#2563eb] bg-transparent border-none cursor-pointer"
+                                                    >
+                                                        Yig'ish
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
                                     ) : (
-                                        <p className="text-center text-sm text-[#6b7280] dark:text-[#94a3b8] m-0 py-4">Bu oy uchun dars yo'q</p>
+                                        <p className="text-center text-sm text-[#6b7280] dark:text-[#94a3b8] m-0 py-4">Dars jadvali mavjud emas</p>
                                     )}
                                 </div>
                             </div>
@@ -325,20 +352,33 @@ export default function GroupDetail() {
 
             {tab === 1 && (
                 <div className="bg-white dark:bg-[#1e2a3a] rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                    {/* Sub-tab bar */}
-                    <div className="flex items-center justify-between px-5 py-3 border-b border-[#e8e8e8] dark:border-[#2d3748]">
-                        <div className="flex gap-1 bg-[#f3f4f6] dark:bg-[#2d3748] p-1 rounded-xl">
-                            {['Uyga vazifa', 'Videolar', 'Imtihonlar', 'Jurnal'].map((label, i) => (
-                                <button
-                                    key={label}
-                                    onClick={() => setSubTab(i)}
-                                    className={`px-4 py-1.5 rounded-lg text-[13px] font-medium border-none cursor-pointer transition-all duration-200 ${subTab === i ? 'bg-white dark:bg-[#1e2a3a] text-[#1a1a2e] dark:text-[#e2e8f0] shadow-sm border border-[#e8e8e8] dark:border-[#374151]' : 'bg-transparent text-[#6b7280] dark:text-[#94a3b8] hover:text-[#1a1a2e] dark:hover:text-[#e2e8f0]'}`}
-                                >{label}</button>
-                            ))}
+                    {/* Header with title and sub-tabs */}
+                    <div className="px-5 py-4 border-b border-[#e8e8e8] dark:border-[#2d3748]">
+                        <div className="flex items-center justify-start gap-4 mb-4">
+                            <h3 className="m-0 text-[15px] font-bold text-[#1a1a2e] dark:text-[#e2e8f0]">Guruh darsliklari</h3>
+                            <div className="flex gap-1 bg-[#f3f4f6] dark:bg-[#2d3748] p-1 rounded-xl">
+                                {['Uyga vazifa', 'Videolar', 'Imtihonlar', 'Jurnal'].map((label, i) => (
+                                    <button
+                                        key={label}
+                                        onClick={() => {
+                                            setSubTab(i)
+                                            if (i === 0) {
+                                                apiGet(`/homework/own/${id}`)
+                                                    .then(res => setHomeworks(Array.isArray(res) ? res : (res?.data ?? [])))
+                                                    .catch(() => {})
+                                            }
+                                        }}
+                                        className={`px-4 py-1.5 rounded-lg text-[13px] font-medium border-none cursor-pointer transition-all duration-200 ${subTab === i ? 'bg-white dark:bg-[#1e2a3a] text-[#1a1a2e] dark:text-[#e2e8f0] shadow-sm border border-[#e8e8e8] dark:border-[#374151]' : 'bg-transparent text-[#6b7280] dark:text-[#94a3b8] hover:text-[#1a1a2e] dark:hover:text-[#e2e8f0]'}`}
+                                    >{label}</button>
+                                ))}
+                            </div>
+                            <button
+                                onClick={() => navigate(`/dashboard/guruhlar/${id}/homework/create`)}
+                                className="flex items-center gap-2 bg-[#22c55e] hover:bg-[#16a34a] text-white border-none rounded-lg px-4 py-2 text-[13px] font-semibold cursor-pointer transition-colors ml-auto"
+                            >
+                                + Qo'shish
+                            </button>
                         </div>
-                        <button className="flex items-center gap-2 bg-[#22c55e] hover:bg-[#16a34a] text-white border-none rounded-lg px-4 py-2 text-[13px] font-semibold cursor-pointer transition-colors">
-                            + Qo'shish
-                        </button>
                     </div>
 
                     {/* Table */}

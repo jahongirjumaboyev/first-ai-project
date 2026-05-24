@@ -1,4 +1,5 @@
-const BASE_URL = '/api/v1'
+// Use VITE_API_BASE for direct backend testing, fallback to dev proxy path
+const BASE_URL = import.meta.env.VITE_API_BASE || '/api/v1'
 
 function getToken() {
     return localStorage.getItem('token')
