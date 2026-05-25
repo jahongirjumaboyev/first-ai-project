@@ -54,7 +54,6 @@ export default function Homepage() {
 
     const isBoshqarish = location.pathname.includes('boshqarish')
 
-    /* Token tekshiruvi */
     useEffect(() => {
         if (!localStorage.getItem('token')) navigate('/', { replace: true })
     }, [location.pathname, location.search, navigate])
@@ -109,9 +108,8 @@ export default function Homepage() {
         closeMenu()
     }
 
-    /* Sidebar width values */
-    const sidebarW     = collapsed ? 'w-14 min-w-14' : 'w-55 min-w-55'
-    const popupLeft    = collapsed ? 'left-14' : 'left-55'
+    const sidebarW  = collapsed ? 'w-14 min-w-14' : 'w-55 min-w-55'
+    const popupLeft = collapsed ? 'left-14' : 'left-55'
 
     const linkBase     = `flex items-center rounded-xl text-sm font-medium transition-all duration-200 no-underline w-full text-left cursor-pointer border-none py-2.5 ${collapsed ? 'justify-center px-0' : 'gap-3 px-3.5'}`
     const linkActive   = 'bg-[#7E56D8] text-white [&_span_svg]:text-white'
@@ -121,15 +119,12 @@ export default function Homepage() {
         <ThemeContext.Provider value={dark}>
             <div className="flex h-screen bg-[#f0f2f5] dark:bg-[#111827] overflow-hidden">
 
-                {/* Mobile overlay */}
                 {sidebarOpen && (
                     <div className="fixed inset-0 bg-black/50 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
                 )}
 
-                {/* ═══ SIDEBAR ═══ */}
                 <aside className={`fixed md:sticky top-0 inset-y-0 left-0 ${sidebarW} bg-white dark:bg-[#1e2a3a] flex flex-col shadow-[2px_0_8px_rgba(0,0,0,0.07)] dark:shadow-[2px_0_8px_rgba(0,0,0,0.3)] z-40 h-screen transition-all duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
 
-                    {/* Logo row */}
                     <div className={`flex items-center border-b border-[#f0f0f0] dark:border-[#2d3748] h-15 shrink-0 ${collapsed ? 'justify-center px-0' : 'justify-between px-4'}`}>
                         {!collapsed && (
                             <div className="flex items-center gap-2.5">
@@ -140,7 +135,6 @@ export default function Homepage() {
                         {collapsed && (
                             <img src={Logo} alt="logo" className="w-8 h-8 rounded-lg shrink-0" />
                         )}
-                        {/* Desktop collapse toggle */}
                         <button
                             onClick={() => setCollapsed(c => !c)}
                             className={`hidden md:flex items-center justify-center w-7 h-7 rounded-lg border border-[#e8e8e8] dark:border-[#2d3748] bg-white dark:bg-[#1e2a3a] text-[#6b7280] dark:text-[#94a3b8] cursor-pointer hover:bg-[#ede8fb] hover:text-[#7E56D8] hover:border-[#7E56D8] transition-all duration-200 shrink-0 ${collapsed ? 'ml-0' : ''}`}
@@ -152,7 +146,6 @@ export default function Homepage() {
                         </button>
                     </div>
 
-                    {/* Nav */}
                     <nav className={`flex-1 py-3 flex flex-col gap-1 overflow-y-auto ${collapsed ? 'px-1.5' : 'px-2.5'}`}>
                         {navItems.map(item => (
                             <NavLink
@@ -168,7 +161,6 @@ export default function Homepage() {
                             </NavLink>
                         ))}
 
-                        {/* Boshqarish */}
                         <button
                             ref={triggerRef}
                             onClick={handleBoshqarishClick}
@@ -180,7 +172,6 @@ export default function Homepage() {
                         </button>
                     </nav>
 
-                    {/* Subscription — hidden when collapsed */}
                     {!collapsed && (
                         <div className="mx-2.5 bg-[#f5f0ff] dark:bg-[#1a2d42] rounded-[14px] p-3.5 flex flex-col gap-2.5">
                             <div className="flex items-center gap-2.5">
@@ -196,7 +187,6 @@ export default function Homepage() {
                         </div>
                     )}
 
-                    {/* Logout */}
                     <div className={`mb-4 mt-2 ${collapsed ? 'px-1.5' : 'px-2.5'}`}>
                         <button
                             onClick={logout}
@@ -209,7 +199,6 @@ export default function Homepage() {
                     </div>
                 </aside>
 
-                {/* ═══ BOSHQARISH POPUP (desktop) ═══ */}
                 {menuOpen && (
                     <div
                         ref={panelRef}
@@ -233,21 +222,17 @@ export default function Homepage() {
                     </div>
                 )}
 
-                {/* ═══ MAIN CONTENT ═══ */}
                 <div className="flex-1 flex flex-col overflow-hidden min-w-0">
 
-                    {/* Header */}
                     <header className="h-15 bg-white dark:bg-[#1e2a3a] flex items-center justify-between px-4 md:px-6 gap-3 shadow-[0_2px_8px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)] sticky top-0 z-9 shrink-0">
 
                         <div className="flex items-center gap-3">
-                            {/* Hamburger – mobile only */}
                             <button
                                 onClick={() => setSidebarOpen(s => !s)}
                                 className="md:hidden border-none bg-transparent cursor-pointer text-[#555] dark:text-[#94a3b8] flex items-center p-1 rounded-lg hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors"
                             >
                                 <MenuIcon />
                             </button>
-                            {/* Search – desktop */}
                             <div className="hidden md:flex items-center gap-2 bg-[#f5f5f5] dark:bg-[#0f1827] rounded-[10px] px-3.5 py-1.5 border border-[#e0e0e0] dark:border-[#2d3748]">
                                 <SearchIcon sx={{ color: '#888', fontSize: 18 }} />
                                 <input type="text" placeholder="Qidirish..." className="border-none outline-none bg-transparent text-sm text-[#1a1a2e] dark:text-[#e2e8f0] w-45" />

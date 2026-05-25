@@ -39,7 +39,6 @@ export default function Login() {
     return (
         <div className="flex flex-col md:flex-row w-screen h-screen">
 
-            {/* Toast */}
             {toast && (
                 <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-9999 flex items-center gap-2.5 px-4 sm:px-7 py-3 sm:py-3.5 rounded-[10px] text-[13px] sm:text-[15px] font-semibold text-white w-[calc(100vw-32px)] sm:w-auto text-center justify-center shadow-[0_6px_24px_rgba(0,0,0,0.25)] animate-slideDown ${toast.type === 'success' ? 'bg-[#1F2D5C]' : 'bg-[#c0392b]'}`}>
                     {toast.message}
@@ -49,12 +48,10 @@ export default function Login() {
                 </div>
             )}
 
-            {/* LEFT — illustration */}
             <div className="hidden md:flex md:w-[55%] bg-[#1F2D5C] items-center justify-center overflow-hidden">
                 <img src={Study} alt="study illustration" className="w-full h-full object-cover" />
             </div>
 
-            {/* RIGHT — form */}
             <div className="flex-1 md:w-[45%] flex flex-col items-center justify-center gap-4.5 bg-white relative px-4 md:px-0">
                 <p className="w-full max-w-60 text-center text-xs font-medium text-[#333] leading-relaxed">
                     MUHAMMAD AL-XORAZMIY NOMIDAGI TOSHKENT AXBOROT TEXNOLOGIYALARI UNIVERSITETI

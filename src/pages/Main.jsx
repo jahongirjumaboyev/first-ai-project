@@ -25,7 +25,6 @@ export default function Main() {
                 </h1>
             </div>
 
-            {/* Stat Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-7">
                 {statsConfig.map((stat) => {
                     const Icon = stat.Icon
@@ -53,7 +52,6 @@ export default function Main() {
                 })}
             </div>
 
-            {/* Dars Jadvali accordion */}
             <div className="bg-white dark:bg-[#1e2a3a] rounded-2xl px-6 py-5 shadow-[0_2px_12px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.3)]">
                 <div
                     onClick={() => setOpen(o => !o)}

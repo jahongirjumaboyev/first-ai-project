@@ -1,14 +1,15 @@
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
-import Login from './components/Login'
-import Homepage from './components/Homepage'
-import Main from './components/Main'
-import Teachers from './components/Teachers'
-import Classes from './components/Classes'
-import Students from './components/Students'
-import Groups from './components/Groups'
-import GroupDetail from './components/GroupDetail'
-import Prizes from './components/Prizes'
-import Settings from './components/Settings'
+import Login from './pages/Login'
+import Homepage from './pages/Homepage'
+import Main from './pages/Main'
+import Teachers from './pages/Teachers'
+import Classes from './pages/Classes'
+import Students from './pages/Students'
+import Groups from './pages/Groups'
+import GroupDetail from './pages/GroupDetail'
+import HomeworkCreate from './pages/HomeworkCreate'
+import Prizes from './pages/Prizes'
+import Settings from './pages/Settings'
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem('token')
@@ -31,6 +32,7 @@ function App() {
           <Route path='sinflar'       element={<Classes />} />
           <Route path='guruhlar'      element={<Groups />} />
           <Route path='guruhlar/:id'  element={<GroupDetail />} />
+          <Route path='guruhlar/:id/homework/create' element={<HomeworkCreate />} />
           <Route path='talabalar'     element={<Students />} />
           <Route path='sovgalar'      element={<Prizes />} />
           <Route path='boshqarish'    element={<Settings />} />
