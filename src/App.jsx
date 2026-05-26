@@ -8,6 +8,7 @@ import Students from './pages/Students'
 import Groups from './pages/Groups'
 import GroupDetail from './pages/GroupDetail'
 import HomeworkCreate from './pages/HomeworkCreate'
+import LessonDetail from './pages/LessonDetail'
 import Prizes from './pages/Prizes'
 import Settings from './pages/Settings'
 
@@ -33,6 +34,7 @@ function App() {
           <Route path='guruhlar'      element={<Groups />} />
           <Route path='guruhlar/:id'  element={<GroupDetail />} />
           <Route path='guruhlar/:id/homework/create' element={<HomeworkCreate />} />
+          <Route path='guruhlar/:id/lesson/:date'   element={<LessonDetail />} />
           <Route path='talabalar'     element={<Students />} />
           <Route path='sovgalar'      element={<Prizes />} />
           <Route path='boshqarish'    element={<Settings />} />

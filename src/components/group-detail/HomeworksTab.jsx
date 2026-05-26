@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { apiGet, apiPostForm } from '../../api'
+import ImtihonlarTab from './ImtihonlarTab'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutlined'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlined'
@@ -43,6 +44,9 @@ export default function HomeworksTab({ groupId }) {
     const [toast, setToast]           = useState(null)
     const [lessons, setLessons]       = useState([])
     const fileInputRef                = useRef(null)
+    const tabRefs                     = useRef([])
+    const [activeLeft, setActiveLeft] = useState(0)
+    const [activeWidth, setActiveWidth] = useState(0)
 
     const showToast = useCallback((message, type) => {
         setToast({ message, type })
@@ -60,6 +64,14 @@ export default function HomeworksTab({ groupId }) {
     useEffect(() => {
         loadHomeworks()
     }, [loadHomeworks])
+
+    useEffect(() => {
+        const btn = tabRefs.current[subTab]
+        if (btn) {
+            setActiveLeft(btn.offsetLeft)
+            setActiveWidth(btn.offsetWidth)
+        }
+    }, [subTab])
 
     const switchSubTab = (i) => {
         setSubTab(i)
@@ -129,28 +141,64 @@ export default function HomeworksTab({ groupId }) {
                 </div>
             )}
 
+            {/* Header card: title + button + tabs */}
             <div className="bg-white dark:bg-[#1e2a3a] rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                <div className="px-5 py-4 border-b border-[#e8e8e8] dark:border-[#2d3748]">
-                    <div className="flex items-center justify-start gap-4">
-                        <h3 className="m-0 text-[15px] font-bold text-[#1a1a2e] dark:text-[#e2e8f0]">Guruh darsliklari</h3>
-                        <div className="flex gap-1 bg-[#f3f4f6] dark:bg-[#2d3748] p-1 rounded-xl">
-                            {SUB_TABS.map((label, i) => (
-                                <button
-                                    key={label}
-                                    onClick={() => switchSubTab(i)}
-                                    className={`px-4 py-1.5 rounded-lg text-[13px] font-medium border-none cursor-pointer transition-all duration-200 ${subTab === i ? 'bg-white dark:bg-[#1e2a3a] text-[#1a1a2e] dark:text-[#e2e8f0] shadow-sm border border-[#e8e8e8] dark:border-[#374151]' : 'bg-transparent text-[#6b7280] dark:text-[#94a3b8] hover:text-[#1a1a2e] dark:hover:text-[#e2e8f0]'}`}
-                                >{label}</button>
-                            ))}
-                        </div>
+                <h3 className="m-0 px-5 pt-4 text-[15px] font-bold text-[#1a1a2e] dark:text-[#e2e8f0]">Guruh darsliklari</h3>
+
+                <div className="flex items-center justify-between px-5 pt-3 pb-4 gap-3">
+                    <div className="bg-[#f3f4f6] dark:bg-[#2d3748] rounded-xl p-1 inline-flex relative shrink-0">
+                        <div
+                            className="absolute bg-white dark:bg-[#1e2a3a] rounded-lg shadow-sm"
+                            style={{
+                                left: activeLeft,
+                                width: activeWidth,
+                                top: '4px',
+                                bottom: '4px',
+                                transition: 'left 0.25s ease, width 0.25s ease',
+                            }}
+                        />
+                        {SUB_TABS.map((label, i) => (
+                            <button
+                                key={label}
+                                ref={el => { tabRefs.current[i] = el }}
+                                onClick={() => switchSubTab(i)}
+                                className={`px-5 py-2 text-[13px] font-medium rounded-lg border-none cursor-pointer bg-transparent relative z-10 transition-colors duration-200 whitespace-nowrap
+                                    ${subTab === i
+                                        ? 'text-[#7c3aed] font-semibold'
+                                        : 'text-[#6b7280] hover:text-[#1a1a2e]'
+                                    }`}
+                            >{label}</button>
+                        ))}
+                    </div>
+
+                    {subTab !== 2 && (
                         <button
                             onClick={openDrawer}
-                            className="flex items-center gap-2 bg-[#22c55e] hover:bg-[#16a34a] text-white border-none rounded-lg px-4 py-2 text-[13px] font-semibold cursor-pointer transition-colors ml-auto"
+                            className="flex items-center gap-2 bg-[#22c55e] hover:bg-[#16a34a] text-white border-none rounded-lg px-5 py-2 text-[13px] font-semibold cursor-pointer transition-colors shrink-0"
                         >
                             + Qo'shish
                         </button>
-                    </div>
+                    )}
                 </div>
+            </div>
 
+            {/* Per-tab content */}
+            {subTab === 1 && (
+                <div className="bg-white dark:bg-[#1e2a3a] rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.06)] p-10 text-center text-[#6b7280] dark:text-[#94a3b8] text-sm">
+                    Videolar mavjud emas
+                </div>
+            )}
+            {subTab === 2 && (
+                <ImtihonlarTab groupId={groupId} />
+            )}
+            {subTab === 3 && (
+                <div className="bg-white dark:bg-[#1e2a3a] rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.06)] p-10 text-center text-[#6b7280] dark:text-[#94a3b8] text-sm">
+                    Jurnal mavjud emas
+                </div>
+            )}
+
+            {subTab === 0 && (
+            <div className="bg-white dark:bg-[#1e2a3a] rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-[13px] border-collapse">
                         <thead>
@@ -220,6 +268,7 @@ export default function HomeworksTab({ groupId }) {
                     </table>
                 </div>
             </div>
+            )}
 
             {drawerOpen && (
                 <>

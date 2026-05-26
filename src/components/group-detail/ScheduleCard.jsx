@@ -12,7 +12,7 @@ const monthNum = {
 
 const SHOW_INIT = 2
 
-export default function ScheduleCard({ teachers, daysLabel, timeLabel, dateRange, roomName, schedules }) {
+export default function ScheduleCard({ teachers, daysLabel, timeLabel, dateRange, roomName, schedules, onDateClick }) {
     const [showAll, setShowAll] = useState(false)
     const [showAllMonths, setShowAllMonths] = useState(false)
     const [selectedDate, setSelectedDate] = useState(null)
@@ -83,7 +83,7 @@ export default function ScheduleCard({ teachers, daysLabel, timeLabel, dateRange
                                             return (
                                                 <button
                                                     key={i}
-                                                    onClick={() => setSelectedDate(d)}
+                                                    onClick={() => onDateClick ? onDateClick(d) : setSelectedDate(d)}
                                                     className={`flex flex-col items-center justify-center w-14 h-14 rounded-lg border transition-all cursor-pointer ${past ? 'bg-[#dfe4ef] dark:bg-[#4a5568] border-[#c5cfe0] dark:border-[#5a6b7c] text-[#5b6b8c] dark:text-[#a0afc4]' : (isSelected ? 'bg-[#5b7cfa] dark:bg-[#3b5bda] border-[#4a63d9] dark:border-[#2a4bc9] text-white' : 'bg-white dark:bg-[#0f1724] border-[#d1d5db] dark:border-[#374151] text-[#1a1a2e] dark:text-[#e2e8f0] hover:border-[#9ca3af] dark:hover:border-[#4b5563]')}`}
                                                 >
                                                     <span className="text-[10px] font-medium">{monthUz[d.month] ?? d.month}</span>

@@ -8,6 +8,17 @@ import ParametersCard from '../components/group-detail/ParametersCard'
 import ScheduleCard from '../components/group-detail/ScheduleCard'
 import HomeworksTab from '../components/group-detail/HomeworksTab'
 
+const monthToNum = {
+    January: 1, February: 2, March: 3, April: 4, May: 5, June: 6,
+    July: 7, August: 8, September: 9, October: 10, November: 11, December: 12,
+}
+
+function toISODate(day, month) {
+    const year = new Date().getFullYear()
+    const m = monthToNum[month] ?? 1
+    return `${year}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+}
+
 const dayShort = {
     MONDAY: 'Du', TUESDAY: 'Se', WEDNESDAY: 'Ch',
     THURSDAY: 'Pa', FRIDAY: 'Ju', SATURDAY: 'Sh', SUNDAY: 'Ya',
@@ -159,6 +170,7 @@ export default function GroupDetail() {
                                 dateRange={dateRange}
                                 roomName={roomName}
                                 schedules={schedules}
+                                onDateClick={d => navigate(`/dashboard/guruhlar/${id}/lesson/${toISODate(d.day, d.month)}`)}
                             />
                         </>
                     )}
