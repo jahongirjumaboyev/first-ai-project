@@ -10,10 +10,10 @@ export default function GroupsTable({ groups, onNavigate, onToggleActive }) {
                         <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium whitespace-nowrap">Status</th>
                         <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium whitespace-nowrap">Guruh nomi</th>
                         <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium whitespace-nowrap">Kurs</th>
-                        <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium whitespace-nowrap">Davomiyligi</th>
-                        <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium whitespace-nowrap">Dars vaqti</th>
-                        <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium whitespace-nowrap">Xona</th>
-                        <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium whitespace-nowrap">O'qituvchi</th>
+                        <th className="hidden md:table-cell px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium whitespace-nowrap">Davomiyligi</th>
+                        <th className="hidden lg:table-cell px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium whitespace-nowrap">Dars vaqti</th>
+                        <th className="hidden md:table-cell px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium whitespace-nowrap">Xona</th>
+                        <th className="hidden lg:table-cell px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium whitespace-nowrap">O'qituvchi</th>
                         <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium whitespace-nowrap">Talabalar</th>
                         <th className="px-4 py-3 w-10">
                             <RefreshIcon sx={{ fontSize: 18, color: '#94a3b8' }} />
@@ -48,13 +48,13 @@ export default function GroupsTable({ groups, onNavigate, onToggleActive }) {
                             <td className="px-4 py-3">
                                 <span className="text-[#7E56D8] bg-[#ede8fb] dark:bg-[#2a1f4a] px-2.5 py-0.5 rounded-md text-[12px] font-medium whitespace-nowrap">{g.course?.name ?? g.course ?? '—'}</span>
                             </td>
-                            <td className="px-4 py-3 text-[#6b7280] dark:text-[#94a3b8]">{g.course?.duration_month ? `${g.course.duration_month} oy` : '—'}</td>
-                            <td className="px-4 py-3">
+                            <td className="hidden md:table-cell px-4 py-3 text-[#6b7280] dark:text-[#94a3b8]">{g.course?.duration_month ? `${g.course.duration_month} oy` : '—'}</td>
+                            <td className="hidden lg:table-cell px-4 py-3">
                                 <div className="font-medium text-[#1a1a2e] dark:text-[#e2e8f0]">{g.start_time ?? '—'}</div>
                                 <div className="text-[12px] text-[#6b7280] dark:text-[#94a3b8]">{Array.isArray(g.week_day) ? g.week_day.join(', ') : (g.week_day ?? '—')}</div>
                             </td>
-                            <td className="px-4 py-3 text-[#6b7280] dark:text-[#94a3b8] whitespace-nowrap">{g.room?.name ?? g.room ?? '—'}</td>
-                            <td className="px-4 py-3 text-[#1a1a2e] dark:text-[#e2e8f0] whitespace-nowrap">{Array.isArray(g.teachers) ? g.teachers.length : '—'}</td>
+                            <td className="hidden md:table-cell px-4 py-3 text-[#6b7280] dark:text-[#94a3b8] whitespace-nowrap">{g.room?.name ?? g.room ?? '—'}</td>
+                            <td className="hidden lg:table-cell px-4 py-3 text-[#1a1a2e] dark:text-[#e2e8f0] whitespace-nowrap">{Array.isArray(g.teachers) ? g.teachers.length : '—'}</td>
                             <td className="px-4 py-3 text-[#1a1a2e] dark:text-[#e2e8f0] font-medium">{Array.isArray(g.students) ? g.students.length : (g.max_student ?? '—')}</td>
                             <td className="px-4 py-3">
                                 <button className="border-none bg-transparent cursor-pointer text-[#94a3b8] hover:text-[#555] dark:hover:text-[#e2e8f0] flex p-1 rounded transition-colors">

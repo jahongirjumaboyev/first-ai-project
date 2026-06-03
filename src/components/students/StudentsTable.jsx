@@ -17,12 +17,12 @@ export default function StudentsTable({ paginated, selected, allSelected, onTogg
                         <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">
                             <div className="flex items-center gap-1">Nomi <UnfoldMoreIcon sx={{ fontSize: 16 }} /></div>
                         </th>
-                        <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Guruh</th>
+                        <th className="hidden md:table-cell px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Guruh</th>
                         <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Telefon raqamlari</th>
-                        <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Email</th>
-                        <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Tug'ilgan sanasi</th>
-                        <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Manzil</th>
-                        <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Yaratilgan sana</th>
+                        <th className="hidden lg:table-cell px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Email</th>
+                        <th className="hidden md:table-cell px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Tug'ilgan sanasi</th>
+                        <th className="hidden lg:table-cell px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Manzil</th>
+                        <th className="hidden md:table-cell px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Yaratilgan sana</th>
                         <th className="px-4 py-3" />
                     </tr>
                 </thead>
@@ -47,7 +47,7 @@ export default function StudentsTable({ paginated, selected, allSelected, onTogg
                                         <span className="font-semibold text-[#1a1a2e] dark:text-[#e2e8f0] whitespace-nowrap">{s.name}</span>
                                     </div>
                                 </td>
-                                <td className="px-4 py-3">
+                                <td className="hidden md:table-cell px-4 py-3">
                                     <div className="flex gap-1 flex-wrap">
                                         {s.groups.map((g, i) => (
                                             <span key={i} className="bg-[#f0f0f0] dark:bg-[#2d3748] text-[#555] dark:text-[#94a3b8] rounded-md px-2 py-0.5 text-[11px] font-medium whitespace-nowrap">{g}</span>
@@ -55,10 +55,10 @@ export default function StudentsTable({ paginated, selected, allSelected, onTogg
                                     </div>
                                 </td>
                                 <td className="px-4 py-3 text-[#1a1a2e] dark:text-[#e2e8f0] whitespace-nowrap">{s.phone}</td>
-                                <td className="px-4 py-3 text-[#6b7280] dark:text-[#94a3b8]">{s.email}</td>
-                                <td className="px-4 py-3 text-[#6b7280] dark:text-[#94a3b8] whitespace-nowrap">{s.birth}</td>
-                                <td className="px-4 py-3 text-[#6b7280] dark:text-[#94a3b8] whitespace-nowrap">{s.address}</td>
-                                <td className="px-4 py-3 text-[#6b7280] dark:text-[#94a3b8] whitespace-nowrap">{s.created}</td>
+                                <td className="hidden lg:table-cell px-4 py-3 text-[#6b7280] dark:text-[#94a3b8]">{s.email}</td>
+                                <td className="hidden md:table-cell px-4 py-3 text-[#6b7280] dark:text-[#94a3b8] whitespace-nowrap">{s.birth}</td>
+                                <td className="hidden lg:table-cell px-4 py-3 text-[#6b7280] dark:text-[#94a3b8] whitespace-nowrap">{s.address}</td>
+                                <td className="hidden md:table-cell px-4 py-3 text-[#6b7280] dark:text-[#94a3b8] whitespace-nowrap">{s.created}</td>
                                 <td className="px-4 py-3">
                                     <div className="flex items-center gap-0.5">
                                         <button className={`${iconBtn} text-[#6b7280] dark:text-[#94a3b8]`}><VisibilityIcon sx={{ fontSize: 18 }} /></button>

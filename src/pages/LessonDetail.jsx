@@ -1,30 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { apiGet, apiPost } from '../api'
+import { monthUz, toISODate } from '../utils/date'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 
-const monthUz = {
-    January: 'Yan', February: 'Fev', March: 'Mar', April: 'Apr',
-    May: 'May', June: 'Iyun', July: 'Iyul', August: 'Avg',
-    September: 'Sen', October: 'Okt', November: 'Noy', December: 'Dek',
-}
-const monthToNum = {
-    January: 0, February: 1, March: 2, April: 3, May: 4, June: 5,
-    July: 6, August: 7, September: 8, October: 9, November: 10, December: 11,
-}
 const AVATAR_COLORS = ['#7c3aed', '#16a34a', '#2563eb', '#d97706', '#dc2626', '#0891b2', '#0d9488', '#9333ea']
 const RADIO_LABELS  = ["O'quv reja bo'yicha", 'Boshqa']
 const STAFF_TABS    = ['Assistant', 'Teacher']
 
 function getInitials(name = '') {
     return name.trim().split(/\s+/).map(w => w[0] ?? '').join('').slice(0, 2).toUpperCase() || '?'
-}
-
-function toISODate(day, month, year = new Date().getFullYear()) {
-    const m = (monthToNum[month] ?? 0) + 1
-    return `${year}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 }
 
 function fmtDateFull(day, month, year) {

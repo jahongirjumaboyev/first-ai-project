@@ -50,7 +50,7 @@ function Sep() {
 const selectCls =
     'text-[11px] border border-[#e5e7eb] dark:border-[#374151] rounded px-1 py-[3px] bg-white dark:bg-[#1e2a3a] text-[#374151] dark:text-[#94a3b8] cursor-pointer outline-none shrink-0'
 
-export default function RichEditor({ onChange, placeholder = 'Izoh kiriting...' }) {
+export default function RichEditor({ onChange }) {
     const editor = useEditor({
         extensions: [
             StarterKit,

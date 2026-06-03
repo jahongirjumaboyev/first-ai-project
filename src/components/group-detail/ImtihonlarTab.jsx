@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { apiGet, apiPostForm } from '../../api'
+import { monthUz } from '../../utils/date'
 import RichEditor from './RichEditor'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutlined'
 import CloseIcon from '@mui/icons-material/Close'
@@ -9,12 +10,6 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-
-const monthUz = {
-    January: 'Yan', February: 'Fev', March: 'Mar', April: 'Apr',
-    May: 'May', June: 'Iyun', July: 'Iyul', August: 'Avg',
-    September: 'Sen', October: 'Okt', November: 'Noy', December: 'Dek',
-}
 
 function fmtDateTime(str) {
     if (!str) return '—'

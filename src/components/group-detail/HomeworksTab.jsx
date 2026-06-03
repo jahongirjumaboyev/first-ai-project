@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { apiGet, apiPostForm } from '../../api'
+import { fmtDate } from '../../utils/date'
 import ImtihonlarTab from './ImtihonlarTab'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutlined'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
@@ -9,18 +10,6 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import CloseIcon from '@mui/icons-material/Close'
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutlined'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined'
-
-const monthUz = {
-    January: 'Yan', February: 'Fev', March: 'Mar', April: 'Apr',
-    May: 'May', June: 'Iyun', July: 'Iyul', August: 'Avg',
-    September: 'Sen', October: 'Okt', November: 'Noy', December: 'Dek',
-}
-
-function fmtDate(dateStr) {
-    if (!dateStr) return '—'
-    const d = new Date(dateStr)
-    return `${d.getDate()} ${monthUz[d.toLocaleString('en', { month: 'long' })]}, ${d.getFullYear()}`
-}
 
 function fmtSize(bytes) {
     if (bytes == null || isNaN(bytes)) return '—'
@@ -74,6 +63,7 @@ export default function HomeworksTab({ groupId }) {
     const [videoName, setVideoName]         = useState('')
     const [videoUploading, setVideoUploading] = useState(false)
     const videoInputRef                     = useRef(null)
+    const lessonsFetched                    = useRef(false)
 
     const showToast = useCallback((message, type) => {
         setToast({ message, type })
@@ -116,18 +106,22 @@ export default function HomeworksTab({ groupId }) {
         }
     }
 
-    const openCreate = () => {
-        setCreating(true)
+    const loadLessonsOnce = () => {
+        if (lessonsFetched.current) return
+        lessonsFetched.current = true
         apiGet(`/lessons/my/group/${groupId}`)
             .then(res => setLessons(Array.isArray(res) ? res : (res?.data ?? [])))
-            .catch(() => {})
+            .catch(() => { lessonsFetched.current = false })
+    }
+
+    const openCreate = () => {
+        setCreating(true)
+        loadLessonsOnce()
     }
 
     const openVideoModal = () => {
         setVideoModalOpen(true)
-        apiGet(`/lessons/my/group/${groupId}`)
-            .then(res => setLessons(Array.isArray(res) ? res : (res?.data ?? [])))
-            .catch(() => {})
+        loadLessonsOnce()
     }
 
     const closeVideoModal = () => {

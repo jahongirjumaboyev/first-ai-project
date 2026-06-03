@@ -30,10 +30,10 @@ export default function TeachersTable({ paginated, selected, allSelected, someSe
                             <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">
                                 <div className="flex items-center gap-1">Nomi <UnfoldMoreIcon sx={{ fontSize: 16 }} /></div>
                             </th>
-                            <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Guruh</th>
+                            <th className="hidden md:table-cell px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Guruh</th>
                             <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Telefon raqamlari</th>
-                            <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Tug'ilgan sanasi</th>
-                            <th className="px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Yaratilgan sana</th>
+                            <th className="hidden md:table-cell px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Tug'ilgan sanasi</th>
+                            <th className="hidden md:table-cell px-4 py-3 text-left text-[#6b7280] dark:text-[#94a3b8] font-medium">Yaratilgan sana</th>
                             <th className="px-4 py-3" />
                         </tr>
                     </thead>
@@ -66,10 +66,10 @@ export default function TeachersTable({ paginated, selected, allSelected, someSe
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3 text-[#6b7280] dark:text-[#94a3b8]">—</td>
+                                    <td className="hidden md:table-cell px-4 py-3 text-[#6b7280] dark:text-[#94a3b8]">—</td>
                                     <td className="px-4 py-3 text-[#1a1a2e] dark:text-[#e2e8f0]">{t.phone}</td>
-                                    <td className="px-4 py-3 text-[#6b7280] dark:text-[#94a3b8]">{t.birth}</td>
-                                    <td className="px-4 py-3 text-[#6b7280] dark:text-[#94a3b8]">{t.created}</td>
+                                    <td className="hidden md:table-cell px-4 py-3 text-[#6b7280] dark:text-[#94a3b8]">{t.birth}</td>
+                                    <td className="hidden md:table-cell px-4 py-3 text-[#6b7280] dark:text-[#94a3b8]">{t.created}</td>
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-0.5">
                                             <button className={`${iconBtn} text-[#6b7280] dark:text-[#94a3b8]`}><VisibilityIcon sx={{ fontSize: 18 }} /></button>

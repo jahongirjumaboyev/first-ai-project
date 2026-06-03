@@ -1,14 +1,5 @@
 import { useState } from 'react'
-
-const monthUz = {
-    January: 'Yan', February: 'Fev', March: 'Mar', April: 'Apr',
-    May: 'May', June: 'Iyun', July: 'Iyul', August: 'Avg',
-    September: 'Sen', October: 'Okt', November: 'Noy', December: 'Dek',
-}
-const monthNum = {
-    January: 0, February: 1, March: 2, April: 3, May: 4, June: 5,
-    July: 6, August: 7, September: 8, October: 9, November: 10, December: 11,
-}
+import { monthUz, monthToNum } from '../../utils/date'
 
 const SHOW_INIT = 2
 
@@ -19,7 +10,7 @@ export default function ScheduleCard({ teachers, daysLabel, timeLabel, dateRange
 
     const today = new Date()
     const isPast = (d) => {
-        const mIdx = monthNum[d.month] ?? 0
+        const mIdx = monthToNum[d.month] ?? 0
         return new Date(today.getFullYear(), mIdx, d.day) < today
     }
 

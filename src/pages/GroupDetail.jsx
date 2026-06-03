@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { apiGet } from '../api'
+import { fmtDate, toISODate } from '../utils/date'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import MentorsCard from '../components/group-detail/MentorsCard'
@@ -8,34 +9,12 @@ import ParametersCard from '../components/group-detail/ParametersCard'
 import ScheduleCard from '../components/group-detail/ScheduleCard'
 import HomeworksTab from '../components/group-detail/HomeworksTab'
 
-const monthToNum = {
-    January: 1, February: 2, March: 3, April: 4, May: 5, June: 6,
-    July: 7, August: 8, September: 9, October: 10, November: 11, December: 12,
-}
-
-function toISODate(day, month) {
-    const year = new Date().getFullYear()
-    const m = monthToNum[month] ?? 1
-    return `${year}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-}
-
 const dayShort = {
     MONDAY: 'Du', TUESDAY: 'Se', WEDNESDAY: 'Ch',
     THURSDAY: 'Pa', FRIDAY: 'Ju', SATURDAY: 'Sh', SUNDAY: 'Ya',
 }
-const monthUz = {
-    January: 'Yan', February: 'Fev', March: 'Mar', April: 'Apr',
-    May: 'May', June: 'Iyun', July: 'Iyul', August: 'Avg',
-    September: 'Sen', October: 'Okt', November: 'Noy', December: 'Dek',
-}
 
 const TABS = ["Ma'lumotlar", 'Guruh darsliklari', 'Akademik davomati']
-
-function fmtDate(dateStr) {
-    if (!dateStr) return '—'
-    const d = new Date(dateStr)
-    return `${d.getDate()} ${monthUz[d.toLocaleString('en', { month: 'long' })]}, ${d.getFullYear()}`
-}
 
 export default function GroupDetail() {
     const { id }     = useParams()
