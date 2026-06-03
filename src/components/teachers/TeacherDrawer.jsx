@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react'
-import { apiPost } from '../../api'
+import { useState, useRef, useEffect } from 'react'
+import { apiPost, apiPatch } from '../../api'
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined'
@@ -14,11 +14,27 @@ const initForm = {
 
 const inputCls = 'w-full border border-[#e8e8e8] dark:border-[#2d3748] rounded-[10px] px-3.5 py-2.5 text-sm bg-white dark:bg-[#0f1827] text-[#1a1a2e] dark:text-[#e2e8f0] outline-none'
 
-export default function TeacherDrawer({ open, onClose, onSaved }) {
+export default function TeacherDrawer({ open, onClose, onSaved, teacher }) {
+    const isEdit = !!teacher
+
     const [form, setForm] = useState(initForm)
     const [saving, setSaving] = useState(false)
     const [toast, setToast] = useState(null)
     const fileRef = useRef(null)
+
+    useEffect(() => {
+        if (open && teacher) {
+            setForm({
+                ...initForm,
+                phone:   teacher.phone && teacher.phone !== '—' ? teacher.phone : '+998',
+                email:   teacher.email ?? '',
+                name:    teacher.name && teacher.name !== '—' ? teacher.name : '',
+                address: teacher.address ?? '',
+            })
+        } else if (open) {
+            setForm(initForm)
+        }
+    }, [open, teacher])
 
     const upd = (key, val) => setForm(prev => ({ ...prev, [key]: val }))
     const addGroup = () => {
@@ -34,20 +50,37 @@ export default function TeacherDrawer({ open, onClose, onSaved }) {
     }
 
     const saveTeacher = async () => {
-        if (!form.name || !form.phone || !form.email || !form.password) {
+        if (isEdit) {
+            if (!form.name || !form.phone || !form.email) {
+                showToast("⚠️ Ism, telefon va email majburiy!", 'error')
+                return
+            }
+        } else if (!form.name || !form.phone || !form.email || !form.password) {
             showToast("⚠️ Ism, telefon, email va parol majburiy!", 'error')
             return
         }
         setSaving(true)
         try {
-            await apiPost('/teachers', {
-                full_name: form.name,
-                email:     form.email,
-                password:  form.password,
-                phone:     form.phone,
-                address:   form.address,
-            })
-            showToast("✅ O'qituvchi muvaffaqiyatli qo'shildi!", 'success')
+            if (isEdit) {
+                const payload = {
+                    full_name: form.name,
+                    email:     form.email,
+                    phone:     form.phone,
+                    address:   form.address,
+                }
+                if (form.password) payload.password = form.password
+                await apiPatch(`/teachers/${teacher.id}`, payload)
+                showToast("✅ O'qituvchi muvaffaqiyatli tahrirlandi!", 'success')
+            } else {
+                await apiPost('/teachers', {
+                    full_name: form.name,
+                    email:     form.email,
+                    password:  form.password,
+                    phone:     form.phone,
+                    address:   form.address,
+                })
+                showToast("✅ O'qituvchi muvaffaqiyatli qo'shildi!", 'success')
+            }
             await onSaved()
             setTimeout(() => closeDrawer(), 1200)
         } catch (err) {
@@ -73,8 +106,8 @@ export default function TeacherDrawer({ open, onClose, onSaved }) {
                 <div className="px-6 pt-[22px] pb-4 border-b border-[#e8e8e8] dark:border-[#2d3748] shrink-0">
                     <div className="flex justify-between items-start">
                         <div>
-                            <h2 className="m-0 text-lg font-bold text-[#1a1a2e] dark:text-[#e2e8f0]">O'qituvchi qo'shish</h2>
-                            <p className="mt-1 mb-0 text-[13px] text-[#6b7280] dark:text-[#94a3b8]">Bu yerda siz yangi o'qituvchi qo'shishingiz mumkin.</p>
+                            <h2 className="m-0 text-lg font-bold text-[#1a1a2e] dark:text-[#e2e8f0]">{isEdit ? "O'qituvchini tahrirlash" : "O'qituvchi qo'shish"}</h2>
+                            <p className="mt-1 mb-0 text-[13px] text-[#6b7280] dark:text-[#94a3b8]">{isEdit ? "Bu yerda siz o'qituvchi ma'lumotlarini tahrirlashingiz mumkin." : "Bu yerda siz yangi o'qituvchi qo'shishingiz mumkin."}</p>
                         </div>
                         <button onClick={closeDrawer} className="border-none bg-transparent cursor-pointer text-[#6b7280] dark:text-[#94a3b8] flex p-1 mt-0.5 hover:text-[#1a1a2e] dark:hover:text-[#e2e8f0] transition-colors">
                             <CloseIcon sx={{ fontSize: 20 }} />

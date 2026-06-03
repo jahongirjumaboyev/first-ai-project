@@ -69,7 +69,7 @@ export default function LessonDetail() {
         let cancelled = false
         Promise.all([
             apiGet(`/groups/${id}/schedules`),
-            apiGet(`/groups/${id}/students`),
+            apiGet(`/groups/one/students/${id}`),
         ]).then(([schedRes, studRes]) => {
             if (cancelled) return
             let sched = Array.isArray(schedRes)
@@ -151,15 +151,24 @@ export default function LessonDetail() {
         setSaving(true)
         try {
             await apiPost(`/groups/${id}/lesson`, {
-                date: selectedDateStr,
+                group_id: Number(id),
+                lesson_date: new Date(selectedDateStr).toISOString(),
                 topic: topic.trim(),
                 description: description.trim(),
-                attendance: Object.entries(attendance).map(([studentId, present]) => ({
-                    studentId: Number(studentId),
-                    present,
+                attendances: Object.entries(attendance).map(([studentId, present]) => ({
+                    student_id: Number(studentId),
+                    isPresent: present,
                 })),
             })
-            showToast('Saqlandi!', 'success')
+            const requests = students.map(s =>
+                apiPost('/attendance', {
+                    group_id: Number(id),
+                    student_id: Number(s.id),
+                    isPresent: !!attendance[s.id],
+                })
+            )
+            await Promise.all(requests)
+            showToast('Davomat saqlandi', 'success')
         } catch (err) {
             showToast(err.message || 'Xatolik yuz berdi', 'error')
         } finally {

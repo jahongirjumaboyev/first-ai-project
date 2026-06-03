@@ -32,6 +32,7 @@ export default function Settings() {
     const activeTab = tabs.find(t => t.id === urlTab)?.id || 'kurslar'
 
     const [drawerOpen, setDrawerOpen]             = useState(false)
+    const [editCourse, setEditCourse]             = useState(null)
     const [xonaOpen, setXonaOpen]                 = useState(false)
     const [editRoom, setEditRoom]                 = useState(null)
     const [courses, setCourses]                   = useState([])
@@ -61,7 +62,7 @@ export default function Settings() {
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'kurslar': return <KurslarTab onAddClick={() => setDrawerOpen(true)} courses={courses} loading={coursesLoading} />
+            case 'kurslar': return <KurslarTab onAddClick={() => setDrawerOpen(true)} courses={courses} loading={coursesLoading} onRefresh={loadCourses} onEditClick={course => { setEditCourse(course); setDrawerOpen(true) }} />
             case 'xonalar': return <XonalarTab onAddClick={() => setXonaOpen(true)} rooms={rooms} loading={roomsLoading} onRefresh={loadRooms} onEditClick={room => { setEditRoom(room); setXonaOpen(true) }} />
             default: return <PlaceholderTab label={tabs.find(t => t.id === activeTab)?.label || ''} />
         }
@@ -94,7 +95,7 @@ export default function Settings() {
                 </div>
             </div>
 
-            <KursDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} onSaved={loadCourses} />
+            <KursDrawer open={drawerOpen} onClose={() => { setDrawerOpen(false); setEditCourse(null) }} onSaved={loadCourses} course={editCourse} />
             <XonaDrawer open={xonaOpen} onClose={() => { setXonaOpen(false); setEditRoom(null) }} onSaved={loadRooms} room={editRoom} />
         </div>
     )

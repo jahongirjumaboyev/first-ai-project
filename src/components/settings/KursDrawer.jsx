@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { apiPost } from '../../api'
+import { apiPost, apiPatch } from '../../api'
 import CloseIcon from '@mui/icons-material/Close'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn'
@@ -9,16 +9,30 @@ const drawerInputCls = 'w-full border border-[#e5e7eb] dark:border-[#2d3748] rou
 const colorPalette = ['#374151', '#7E56D8', '#e53935', '#f57c00', '#16a34a', '#0891b2', '#2563eb', '#6366f1', '#db2777']
 const initForm = { name: '', duration: '', period: '', price: '', description: '', color: '#7E56D8' }
 
-export default function KursDrawer({ open, onClose, onSaved }) {
+export default function KursDrawer({ open, onClose, onSaved, course }) {
+    const isEdit = !!course
+
     const [visible, setVisible] = useState(false)
     const [form, setForm] = useState(initForm)
     const [saving, setSaving] = useState(false)
     const [toast, setToast] = useState(null)
 
     useEffect(() => {
-        if (open) requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)))
-        else { setVisible(false); setForm(initForm) }
-    }, [open])
+        if (open) {
+            requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)))
+            setForm(course ? {
+                name:        course.name ?? '',
+                duration:    course.duration_hours != null ? String(course.duration_hours) : '',
+                period:      course.duration_month != null ? String(course.duration_month) : '',
+                price:       course.price != null ? String(course.price) : '',
+                description: course.description ?? '',
+                color:       course.color ?? '#7E56D8',
+            } : initForm)
+        } else {
+            setVisible(false)
+            setForm(initForm)
+        }
+    }, [open, course])
 
     function showToast(message, type) {
         setToast({ message, type })
@@ -28,14 +42,20 @@ export default function KursDrawer({ open, onClose, onSaved }) {
     async function saveCourse() {
         setSaving(true)
         try {
-            await apiPost('/courses', {
+            const payload = {
                 name:           form.name,
                 description:    form.description,
                 price:          Number(form.price) || 0,
                 duration_month: Number(form.period) || 0,
                 duration_hours: Number(form.duration) || 0,
-            })
-            showToast("✅ Kurs muvaffaqiyatli qo'shildi!", 'success')
+            }
+            if (isEdit) {
+                await apiPatch(`/courses/${course.id}`, payload)
+                showToast('✅ Kurs muvaffaqiyatli tahrirlandi!', 'success')
+            } else {
+                await apiPost('/courses', payload)
+                showToast("✅ Kurs muvaffaqiyatli qo'shildi!", 'success')
+            }
             onSaved?.()
             setTimeout(() => onClose(), 1200)
         } catch (err) {
@@ -55,8 +75,8 @@ export default function KursDrawer({ open, onClose, onSaved }) {
 
                 <div className="px-6 pt-6 pb-4 border-b border-[#e5e7eb] dark:border-[#2d3748] shrink-0 flex items-start justify-between">
                     <div>
-                        <h2 className="m-0 mb-1 text-lg font-bold text-[#1a1a2e] dark:text-[#e2e8f0]">Kurs qo'shish</h2>
-                        <p className="m-0 text-[13px] text-[#6b7280] dark:text-[#94a3b8]">Bu yerda siz yangi kurs qo'shingiz mumkin.</p>
+                        <h2 className="m-0 mb-1 text-lg font-bold text-[#1a1a2e] dark:text-[#e2e8f0]">{isEdit ? 'Kursni tahrirlash' : "Kurs qo'shish"}</h2>
+                        <p className="m-0 text-[13px] text-[#6b7280] dark:text-[#94a3b8]">{isEdit ? 'Bu yerda siz kursni tahrirlashingiz mumkin.' : "Bu yerda siz yangi kurs qo'shingiz mumkin."}</p>
                     </div>
                     <button onClick={onClose} className="border-none bg-transparent cursor-pointer text-[#6b7280] dark:text-[#94a3b8] hover:text-[#1a1a2e] dark:hover:text-[#e2e8f0] flex p-1 transition-colors">
                         <CloseIcon />

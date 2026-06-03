@@ -7,7 +7,7 @@ import EditIcon from '@mui/icons-material/Edit'
 
 const iconBtn = 'border-none bg-transparent cursor-pointer p-[3px] flex items-center rounded transition-opacity duration-150 hover:opacity-70'
 
-export default function TeachersTable({ paginated, selected, allSelected, someSelected, onToggleAll, onToggleOne }) {
+export default function TeachersTable({ paginated, selected, allSelected, someSelected, onToggleAll, onToggleOne, onDeleteClick, onEditClick }) {
     return (
         <>
             {someSelected && (
@@ -74,8 +74,8 @@ export default function TeachersTable({ paginated, selected, allSelected, someSe
                                         <div className="flex items-center gap-0.5">
                                             <button className={`${iconBtn} text-[#6b7280] dark:text-[#94a3b8]`}><VisibilityIcon sx={{ fontSize: 18 }} /></button>
                                             <button className={`${iconBtn} text-[#6b7280] dark:text-[#94a3b8]`}><FileDownloadIcon sx={{ fontSize: 18 }} /></button>
-                                            <button className={`${iconBtn} text-[#ef4444]`}><DeleteIcon sx={{ fontSize: 18 }} /></button>
-                                            <button className={`${iconBtn} text-[#6b7280] dark:text-[#94a3b8]`}><EditIcon sx={{ fontSize: 18 }} /></button>
+                                            <button onClick={() => onDeleteClick?.(t)} className={`${iconBtn} text-[#ef4444]`}><DeleteIcon sx={{ fontSize: 18 }} /></button>
+                                            <button onClick={() => onEditClick?.(t)} className={`${iconBtn} text-[#6b7280] dark:text-[#94a3b8]`}><EditIcon sx={{ fontSize: 18 }} /></button>
                                         </div>
                                     </td>
                                 </tr>
