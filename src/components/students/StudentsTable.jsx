@@ -62,7 +62,7 @@ export default function StudentsTable({ paginated, selected, allSelected, onTogg
                                 <td className="px-4 py-3">
                                     <div className="flex items-center gap-0.5">
                                         <button className={`${iconBtn} text-[#6b7280] dark:text-[#94a3b8]`}><VisibilityIcon sx={{ fontSize: 18 }} /></button>
-                                        <button onClick={() => onDelete(s.id)} className={`${iconBtn} text-[#ef4444]`}><DeleteIcon sx={{ fontSize: 18 }} /></button>
+                                        <button onClick={() => onDelete(s)} className={`${iconBtn} text-[#ef4444]`}><DeleteIcon sx={{ fontSize: 18 }} /></button>
                                         <button onClick={() => onEdit(s)} className={`${iconBtn} text-[#6b7280] dark:text-[#94a3b8]`}><EditIcon sx={{ fontSize: 18 }} /></button>
                                     </div>
                                 </td>

@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
-import { apiGet } from '../api'
+import { apiGet, apiDel } from '../api'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import SearchIcon from '@mui/icons-material/Search'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import ArchiveIcon from '@mui/icons-material/Archive'
+import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import StudentsTable from '../components/students/StudentsTable'
 import StudentDrawer from '../components/students/StudentDrawer'
 import Pagination from '../components/ui/Pagination'
+import Toast from '../components/ui/Toast'
 
 const PAGE_SIZE = 4
 
@@ -32,6 +34,14 @@ export default function Students() {
     const [page, setPage]             = useState(1)
     const [drawerOpen, setDrawerOpen] = useState(false)
     const [editingStudent, setEditingStudent] = useState(null)
+    const [deleteTarget, setDeleteTarget] = useState(null)
+    const [deleting, setDeleting]         = useState(false)
+    const [toast, setToast]               = useState(null)
+
+    function showToast(message, type) {
+        setToast({ message, type })
+        setTimeout(() => setToast(null), 3000)
+    }
 
     const loadStudents = () =>
         apiGet('/students?page=1&limit=100')
@@ -64,9 +74,20 @@ export default function Students() {
     const toggleOne    = (id) => setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
     const handleSearch = (val) => { setSearch(val); setPage(1) }
 
-    const deleteStudent = (id) => {
-        setStudents(prev => prev.filter(s => s.id !== id))
-        setSelected(prev => prev.filter(x => x !== id))
+    async function handleDeleteStudent() {
+        if (!deleteTarget) return
+        setDeleting(true)
+        try {
+            await apiDel(`/students/${deleteTarget.id}`)
+            setStudents(prev => prev.filter(s => s.id !== deleteTarget.id))
+            setSelected(prev => prev.filter(x => x !== deleteTarget.id))
+            showToast("✅ Talaba o'chirildi", 'success')
+            setDeleteTarget(null)
+        } catch {
+            showToast("❌ O'chirishda xatolik", 'error')
+        } finally {
+            setDeleting(false)
+        }
     }
 
     const openEdit = (s) => {
@@ -76,6 +97,41 @@ export default function Students() {
 
     return (
         <div>
+            {toast && <Toast message={toast.message} type={toast.type} />}
+
+            {/* ── Delete confirmation modal ── */}
+            {deleteTarget && (
+                <div className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-4">
+                    <div className="bg-white dark:bg-[#1e2a3a] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] p-6 sm:p-7 w-full max-w-[380px] animate-fadeUp">
+                        <div className="w-14 h-14 rounded-full bg-[#fce4ec] dark:bg-[#3b1020] flex items-center justify-center mx-auto mb-4">
+                            <WarningAmberIcon sx={{ fontSize: 28, color: '#e53935' }} />
+                        </div>
+                        <h3 className="m-0 text-center text-[16px] font-bold text-[#1a1a2e] dark:text-[#e2e8f0] mb-2">
+                            Talabani o'chirish
+                        </h3>
+                        <p className="m-0 text-center text-[13px] text-[#6b7280] dark:text-[#94a3b8] leading-relaxed mb-6">
+                            Rostdan ham o'chirishni hohlaysizmi?
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setDeleteTarget(null)}
+                                disabled={deleting}
+                                className="flex-1 py-2.5 border border-[#e5e7eb] dark:border-[#2d3748] rounded-[10px] text-[13px] font-medium bg-transparent text-[#1a1a2e] dark:text-[#e2e8f0] cursor-pointer hover:bg-[#f5f5f5] dark:hover:bg-[#2d3748] transition-colors disabled:opacity-50"
+                            >
+                                Bekor qilish
+                            </button>
+                            <button
+                                onClick={handleDeleteStudent}
+                                disabled={deleting}
+                                className={`flex-1 py-2.5 border-none rounded-[10px] text-[13px] font-semibold text-white transition-colors ${deleting ? 'bg-[#f87171] cursor-not-allowed' : 'bg-[#e53935] hover:bg-[#c62828] cursor-pointer'}`}
+                            >
+                                {deleting ? "O'chirilmoqda..." : "O'chirish"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start mb-5">
                 <div>
                     <h1 className="m-0 text-2xl font-bold text-[#1a1a2e] dark:text-[#e2e8f0]">Talabalar</h1>
@@ -128,7 +184,7 @@ export default function Students() {
                     allSelected={allSelected}
                     onToggleAll={toggleAll}
                     onToggleOne={toggleOne}
-                    onDelete={deleteStudent}
+                    onDelete={(student) => setDeleteTarget(student)}
                     onEdit={openEdit}
                 />
 
