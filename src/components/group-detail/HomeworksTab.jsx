@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { apiGet, apiPostForm } from '../../api'
 import { fmtDate } from '../../utils/date'
 import ImtihonlarTab from './ImtihonlarTab'
@@ -38,6 +39,7 @@ function Sep() {
 }
 
 export default function HomeworksTab({ groupId }) {
+    const navigate                    = useNavigate()
     const [subTab, setSubTab]         = useState(0)
     const [homeworks, setHomeworks]   = useState([])
     const [hwLoading, setHwLoading]   = useState(false)
@@ -526,8 +528,13 @@ export default function HomeworksTab({ groupId }) {
                                     ) : homeworks.map((hw, i) => (
                                         <tr key={`${hw.id}-${i}`} className="hover:bg-[#f8f9fa] dark:hover:bg-[#162032] transition-colors">
                                             <td className="px-5 py-3.5 text-[#6b7280] dark:text-[#94a3b8]">{i + 1}</td>
-                                            <td className="px-5 py-3.5 font-medium text-[#1a1a2e] dark:text-[#e2e8f0] max-w-[200px] truncate">
-                                                {hw.topic ?? '—'}
+                                            <td className="px-5 py-3.5 max-w-[200px]">
+                                                <button
+                                                    onClick={() => navigate(`/dashboard/guruhlar/${groupId}/homework/${hw.id}`, { state: { homework: hw, groupId } })}
+                                                    className="border-none bg-transparent cursor-pointer text-[#3b82f6] hover:underline text-[13px] font-medium p-0 text-left truncate max-w-full"
+                                                >
+                                                    {hw.topic ?? '—'}
+                                                </button>
                                             </td>
                                             <td className="px-4 py-3.5 text-center text-[#6b7280] dark:text-[#94a3b8]">
                                                 {hw.existStudentsIngroup ?? '—'}
